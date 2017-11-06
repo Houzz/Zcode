@@ -11,7 +11,39 @@
 		E414C4F91FADE1F20083C242 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C4F81FADE1F20083C242 /* ViewController.swift */; };
 		E414C4FB1FADE1F20083C242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E414C4FA1FADE1F20083C242 /* Assets.xcassets */; };
 		E414C4FE1FADE1F20083C242 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E414C4FC1FADE1F20083C242 /* Main.storyboard */; };
+		E414C50D1FADE24E0083C242 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E414C50C1FADE24E0083C242 /* Cocoa.framework */; };
+		E414C5101FADE24E0083C242 /* SourceEditorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C50F1FADE24E0083C242 /* SourceEditorExtension.swift */; };
+		E414C5121FADE24E0083C242 /* SourceEditorCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5111FADE24E0083C242 /* SourceEditorCommand.swift */; };
+		E414C5171FADE24E0083C242 /* XCodeExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E414C50A1FADE24D0083C242 /* XCodeExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E414C51D1FADEF260083C242 /* AssertOutlets.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C51C1FADEF260083C242 /* AssertOutlets.swift */; };
+		E414C5251FADF1920083C242 /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5241FADF1920083C242 /* Regex.swift */; };
+		E414C5271FADF1CE0083C242 /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5261FADF1CE0083C242 /* StringAdditions.swift */; };
+		E414C5291FADF2580083C242 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5281FADF2580083C242 /* Scan.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E414C5151FADE24E0083C242 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E414C4EB1FADE1F20083C242 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E414C5091FADE24D0083C242;
+			remoteInfo = AssertOutlets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E414C51B1FADE24E0083C242 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E414C5171FADE24E0083C242 /* XCodeExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		E414C4F31FADE1F20083C242 /* ZCode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZCode.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -21,6 +53,16 @@
 		E414C4FD1FADE1F20083C242 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		E414C4FF1FADE1F20083C242 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E414C5001FADE1F20083C242 /* ZCode.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZCode.entitlements; sourceTree = "<group>"; };
+		E414C50A1FADE24D0083C242 /* XCodeExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = XCodeExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E414C50C1FADE24E0083C242 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		E414C50F1FADE24E0083C242 /* SourceEditorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceEditorExtension.swift; sourceTree = "<group>"; };
+		E414C5111FADE24E0083C242 /* SourceEditorCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceEditorCommand.swift; sourceTree = "<group>"; };
+		E414C5131FADE24E0083C242 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E414C5141FADE24E0083C242 /* AssertOutlets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AssertOutlets.entitlements; sourceTree = "<group>"; };
+		E414C51C1FADEF260083C242 /* AssertOutlets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssertOutlets.swift; sourceTree = "<group>"; };
+		E414C5241FADF1920083C242 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
+		E414C5261FADF1CE0083C242 /* StringAdditions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringAdditions.swift; sourceTree = "<group>"; };
+		E414C5281FADF2580083C242 /* Scan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +73,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E414C5071FADE24D0083C242 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E414C50D1FADE24E0083C242 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -38,6 +88,8 @@
 			isa = PBXGroup;
 			children = (
 				E414C4F51FADE1F20083C242 /* ZCode */,
+				E414C50E1FADE24E0083C242 /* Xcode-Extension */,
+				E414C50B1FADE24E0083C242 /* Frameworks */,
 				E414C4F41FADE1F20083C242 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				E414C4F31FADE1F20083C242 /* ZCode.app */,
+				E414C50A1FADE24D0083C242 /* XCodeExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -63,6 +116,29 @@
 			path = ZCode;
 			sourceTree = "<group>";
 		};
+		E414C50B1FADE24E0083C242 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E414C50C1FADE24E0083C242 /* Cocoa.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E414C50E1FADE24E0083C242 /* Xcode-Extension */ = {
+			isa = PBXGroup;
+			children = (
+				E414C50F1FADE24E0083C242 /* SourceEditorExtension.swift */,
+				E414C5111FADE24E0083C242 /* SourceEditorCommand.swift */,
+				E414C51C1FADEF260083C242 /* AssertOutlets.swift */,
+				E414C5241FADF1920083C242 /* Regex.swift */,
+				E414C5261FADF1CE0083C242 /* StringAdditions.swift */,
+				E414C5281FADF2580083C242 /* Scan.swift */,
+				E414C5131FADE24E0083C242 /* Info.plist */,
+				E414C5141FADE24E0083C242 /* AssertOutlets.entitlements */,
+			);
+			path = "Xcode-Extension";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -73,15 +149,34 @@
 				E414C4EF1FADE1F20083C242 /* Sources */,
 				E414C4F01FADE1F20083C242 /* Frameworks */,
 				E414C4F11FADE1F20083C242 /* Resources */,
+				E414C51B1FADE24E0083C242 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				E414C5161FADE24E0083C242 /* PBXTargetDependency */,
 			);
 			name = ZCode;
 			productName = ZCode;
 			productReference = E414C4F31FADE1F20083C242 /* ZCode.app */;
 			productType = "com.apple.product-type.application";
+		};
+		E414C5091FADE24D0083C242 /* XCodeExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E414C5181FADE24E0083C242 /* Build configuration list for PBXNativeTarget "XCodeExtension" */;
+			buildPhases = (
+				E414C5061FADE24D0083C242 /* Sources */,
+				E414C5071FADE24D0083C242 /* Frameworks */,
+				E414C5081FADE24D0083C242 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = XCodeExtension;
+			productName = AssertOutlets;
+			productReference = E414C50A1FADE24D0083C242 /* XCodeExtension.appex */;
+			productType = "com.apple.product-type.xcode-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -94,6 +189,10 @@
 				ORGANIZATIONNAME = Houzz;
 				TargetAttributes = {
 					E414C4F21FADE1F20083C242 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					E414C5091FADE24D0083C242 = {
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
 					};
@@ -113,6 +212,7 @@
 			projectRoot = "";
 			targets = (
 				E414C4F21FADE1F20083C242 /* ZCode */,
+				E414C5091FADE24D0083C242 /* XCodeExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -124,6 +224,13 @@
 			files = (
 				E414C4FB1FADE1F20083C242 /* Assets.xcassets in Resources */,
 				E414C4FE1FADE1F20083C242 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E414C5081FADE24D0083C242 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,7 +246,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E414C5061FADE24D0083C242 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E414C5101FADE24E0083C242 /* SourceEditorExtension.swift in Sources */,
+				E414C5271FADF1CE0083C242 /* StringAdditions.swift in Sources */,
+				E414C5291FADF2580083C242 /* Scan.swift in Sources */,
+				E414C5251FADF1920083C242 /* Regex.swift in Sources */,
+				E414C51D1FADEF260083C242 /* AssertOutlets.swift in Sources */,
+				E414C5121FADE24E0083C242 /* SourceEditorCommand.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E414C5161FADE24E0083C242 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E414C5091FADE24D0083C242 /* XCodeExtension */;
+			targetProxy = E414C5151FADE24E0083C242 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		E414C4FC1FADE1F20083C242 /* Main.storyboard */ = {
@@ -262,6 +390,7 @@
 		E414C5041FADE1F20083C242 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ZCode/ZCode.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -278,6 +407,7 @@
 		E414C5051FADE1F20083C242 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ZCode/ZCode.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -287,6 +417,38 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.ZCode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		E414C5191FADE24E0083C242 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Xcode-Extension/AssertOutlets.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = J63Q35M68Q;
+				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.ZCode.AssertOutlets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		E414C51A1FADE24E0083C242 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Xcode-Extension/AssertOutlets.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = J63Q35M68Q;
+				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.ZCode.AssertOutlets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
@@ -308,6 +470,15 @@
 			buildConfigurations = (
 				E414C5041FADE1F20083C242 /* Debug */,
 				E414C5051FADE1F20083C242 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E414C5181FADE24E0083C242 /* Build configuration list for PBXNativeTarget "XCodeExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E414C5191FADE24E0083C242 /* Debug */,
+				E414C51A1FADE24E0083C242 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
