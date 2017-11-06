@@ -106,9 +106,62 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
     func enumerateLines(withBlock handler: (_ lineIndex: Int, _ line: String, _ braceLevel: Int, _ stop: inout Bool) -> Void) {
         var braceLevel = 0
         var stop = false
+        var inCComment = false
+        var inString = false
+        enum State {
+            case code
+            case string
+            case ccomment
+        }
+        var state = State.code
         for lineIndex in 0 ..< source.lines.count {
             let line = source.lines[lineIndex] as! String
-            braceLevel += line.countInstances(of: "{") - line.countInstances(of: "}")
+
+            var i = 0
+            let count = line.count
+            out: while i < count {
+                defer {
+                    i += 1
+                }
+
+                switch state {
+                case .code:
+                    switch line[i] {
+                    case "\"":
+                        state = .string
+
+                    case "/":
+                        if line[i+1] == "/" {
+                            break out
+                        } else if line[i+1] == "*" {
+                            state = .ccomment
+                        }
+
+                    case "{":
+                        braceLevel += 1
+
+                    case "}":
+                        braceLevel -= 1
+
+                    default:
+                        break
+                    }
+
+                case .string:
+                    if line[i] == "\\" {
+                        i += 1
+                    } else if line[i] == "\"" {
+                        state = .code
+                    }
+
+                case .ccomment:
+                    if line[i] == "*" && line[i+1] == "/" {
+                        i += 1
+                        state = .code
+                    }
+                }
+            }
+
             handler(lineIndex, line, braceLevel, &stop)
             if stop {
                 break
