@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E401E8111FB35793004DBFA4 /* CastCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E401E8101FB35793004DBFA4 /* CastCommand.swift */; };
 		E414C4F71FADE1F20083C242 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C4F61FADE1F20083C242 /* AppDelegate.swift */; };
 		E414C4F91FADE1F20083C242 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C4F81FADE1F20083C242 /* ViewController.swift */; };
 		E414C4FB1FADE1F20083C242 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E414C4FA1FADE1F20083C242 /* Assets.xcassets */; };
@@ -19,6 +20,8 @@
 		E414C5251FADF1920083C242 /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5241FADF1920083C242 /* Regex.swift */; };
 		E414C5271FADF1CE0083C242 /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5261FADF1CE0083C242 /* StringAdditions.swift */; };
 		E414C5291FADF2580083C242 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5281FADF2580083C242 /* Scan.swift */; };
+		E44591271FB234E500ED1935 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44591261FB234E500ED1935 /* Defaults.swift */; };
+		E44591281FB234E500ED1935 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44591261FB234E500ED1935 /* Defaults.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +49,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E401E8101FB35793004DBFA4 /* CastCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastCommand.swift; sourceTree = "<group>"; };
 		E414C4F31FADE1F20083C242 /* ZCode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZCode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E414C4F61FADE1F20083C242 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E414C4F81FADE1F20083C242 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -63,6 +67,7 @@
 		E414C5241FADF1920083C242 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
 		E414C5261FADF1CE0083C242 /* StringAdditions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringAdditions.swift; sourceTree = "<group>"; };
 		E414C5281FADF2580083C242 /* Scan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
+		E44591261FB234E500ED1935 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				E414C4F61FADE1F20083C242 /* AppDelegate.swift */,
+				E44591261FB234E500ED1935 /* Defaults.swift */,
 				E414C4F81FADE1F20083C242 /* ViewController.swift */,
 				E414C4FA1FADE1F20083C242 /* Assets.xcassets */,
 				E414C4FC1FADE1F20083C242 /* Main.storyboard */,
@@ -129,6 +135,7 @@
 			children = (
 				E414C50F1FADE24E0083C242 /* SourceEditorExtension.swift */,
 				E414C5111FADE24E0083C242 /* SourceEditorCommand.swift */,
+				E401E8101FB35793004DBFA4 /* CastCommand.swift */,
 				E414C51C1FADEF260083C242 /* AssertOutlets.swift */,
 				E414C5241FADF1920083C242 /* Regex.swift */,
 				E414C5261FADF1CE0083C242 /* StringAdditions.swift */,
@@ -191,10 +198,20 @@
 					E414C4F21FADE1F20083C242 = {
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
+						};
 					};
 					E414C5091FADE24D0083C242 = {
 						CreatedOnToolsVersion = 9.1;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -241,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E44591271FB234E500ED1935 /* Defaults.swift in Sources */,
 				E414C4F91FADE1F20083C242 /* ViewController.swift in Sources */,
 				E414C4F71FADE1F20083C242 /* AppDelegate.swift in Sources */,
 			);
@@ -251,9 +269,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				E414C5101FADE24E0083C242 /* SourceEditorExtension.swift in Sources */,
+				E44591281FB234E500ED1935 /* Defaults.swift in Sources */,
 				E414C5271FADF1CE0083C242 /* StringAdditions.swift in Sources */,
 				E414C5291FADF2580083C242 /* Scan.swift in Sources */,
 				E414C5251FADF1920083C242 /* Regex.swift in Sources */,
+				E401E8111FB35793004DBFA4 /* CastCommand.swift in Sources */,
 				E414C51D1FADEF260083C242 /* AssertOutlets.swift in Sources */,
 				E414C5121FADE24E0083C242 /* SourceEditorCommand.swift in Sources */,
 			);
@@ -430,7 +450,7 @@
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
 				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode.AssertOutlets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode.test1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
@@ -446,7 +466,7 @@
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
 				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode.AssertOutlets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode.test1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;

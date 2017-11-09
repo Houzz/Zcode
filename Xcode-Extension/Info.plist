@@ -36,6 +36,14 @@
 					<key>XCSourceEditorCommandName</key>
 					<string>Assert IBOutlets</string>
 				</dict>
+				<dict>
+					<key>XCSourceEditorCommandClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SourceEditorCommand</string>
+					<key>XCSourceEditorCommandIdentifier</key>
+					<string>cast</string>
+					<key>XCSourceEditorCommandName</key>
+					<string>Cast</string>
+				</dict>
 			</array>
 			<key>XCSourceEditorExtensionPrincipalClass</key>
 			<string>$(PRODUCT_MODULE_NAME).SourceEditorExtension</string>

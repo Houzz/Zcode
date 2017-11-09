@@ -34,6 +34,8 @@ public enum CommandError: Int, Error {
 
 enum Command: String {
     case assertOutlets
+    case cast
+
 }
 
 class SourceEditorCommand: NSObject, XCSourceEditorCommand {
@@ -52,6 +54,9 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         switch command {
         case .assertOutlets:
             assertOutlets()
+
+        case .cast:
+            cast(command: command)
         }
     }
 
@@ -116,6 +121,9 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         var state = State.code
         for lineIndex in 0 ..< source.lines.count {
             let line = source.lines[lineIndex] as! String
+            if line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
+                continue
+            }
 
             var i = 0
             let count = line.count
@@ -162,7 +170,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
                 }
             }
 
-            handler(lineIndex, line, braceLevel, &stop)
+            handler(lineIndex, line.trimTrailingWhitespace(), braceLevel, &stop)
             if stop {
                 break
             }
@@ -170,4 +178,13 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
     }
 }
 
+extension String {
+    func trimTrailingWhitespace() -> String {
+        if let trailingWs = self.range(of: "\\s+$", options: .regularExpression) {
+            return self.replacingCharacters(in: trailingWs, with: "")
+        } else {
+            return self
+        }
+    }
+}
 

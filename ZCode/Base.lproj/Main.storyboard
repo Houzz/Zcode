@@ -1,7 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11134" systemVersion="15F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11134"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13529"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+        <capability name="stacking Non-gravity area distributions on NSStackView" minToolsVersion="7.0" minSystemVersion="10.11"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -673,7 +675,7 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModuleProvider="target"/>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="ZCode" customModuleProvider="target"/>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -688,7 +690,7 @@
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-			<connections>
+                        <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
                         </connections>
                     </window>
@@ -703,15 +705,96 @@
         <!--View Controller-->
         <scene sceneID="hIz-AP-VOD">
             <objects>
-                <viewController id="XfG-lQ-9wD" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="ZCode" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="157"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HhI-Y8-ffP">
+                                <rect key="frame" x="16" y="64" width="448" height="85"/>
+                                <subviews>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0j8-Km-Kdc">
+                                        <rect key="frame" x="-2" y="66" width="96" height="19"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Cast Settings" id="qL3-xj-tDU">
+                                            <font key="font" size="15" name=".AppleSystemUIFont"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6a8-Vx-nFy">
+                                        <rect key="frame" x="-2" y="42" width="134" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Use Houzz Logger" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="LPt-Tk-xEt">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DKH-JE-nUx">
+                                        <rect key="frame" x="-2" y="20" width="183" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Treat empty strings as null" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="4bF-49-u5H">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="n2J-6F-AJE">
+                                        <rect key="frame" x="-2" y="-2" width="254" height="18"/>
+                                        <buttonCell key="cell" type="check" title="CamelCase keys (first letter uppercased)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="LQ7-74-k4H">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="controlContent"/>
+                                        </buttonCell>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="448" id="80s-QA-grz"/>
+                                </constraints>
+                                <visibilityPriorities>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
+                                </visibilityPriorities>
+                                <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
+                                </customSpacing>
+                            </stackView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ync-m9-k6g">
+                                <rect key="frame" x="396" y="13" width="74" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="24" id="ILV-ww-xyg"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="60" id="M5Z-0w-Zq1"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Mfz-lI-7qP">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system" size="15"/>
+                                    <connections>
+                                        <action selector="save:" target="XfG-lQ-9wD" id="cSB-ec-By1"/>
+                                    </connections>
+                                </buttonCell>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="HhI-Y8-ffP" secondAttribute="trailing" constant="16" id="A7I-Zg-MdX"/>
+                            <constraint firstAttribute="bottom" secondItem="ync-m9-k6g" secondAttribute="bottom" constant="20" id="K13-n7-S72"/>
+                            <constraint firstItem="HhI-Y8-ffP" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="16" id="KQd-ns-FDq"/>
+                            <constraint firstItem="ync-m9-k6g" firstAttribute="top" secondItem="HhI-Y8-ffP" secondAttribute="bottom" constant="20" id="aQs-H1-xKd"/>
+                            <constraint firstItem="ync-m9-k6g" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="bBy-zJ-bRZ"/>
+                            <constraint firstItem="ync-m9-k6g" firstAttribute="trailing" secondItem="HhI-Y8-ffP" secondAttribute="trailing" id="dYY-N7-LR9"/>
+                            <constraint firstItem="HhI-Y8-ffP" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="8" id="fzc-XA-1Ga"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="nilStrings" destination="4bF-49-u5H" id="a06-UB-Vmu"/>
+                        <outlet property="saveButton" destination="Mfz-lI-7qP" id="ycK-Qi-r29"/>
+                        <outlet property="upperCase" destination="LQ7-74-k4H" id="Z1w-SU-QUC"/>
+                        <outlet property="useLogger" destination="LPt-Tk-xEt" id="hAW-Z3-Itj"/>
+                    </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <userDefaultsController representsSharedInstance="YES" id="Iv7-Ne-Hd2"/>
             </objects>
-            <point key="canvasLocation" x="75" y="655"/>
+            <point key="canvasLocation" x="75" y="704.5"/>
         </scene>
     </scenes>
 </document>
