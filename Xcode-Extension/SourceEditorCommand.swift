@@ -35,7 +35,7 @@ public enum CommandError: Int, Error {
 enum Command: String {
     case assertOutlets
     case cast
-    case read
+    case read, copy, nscoding
 }
 
 class SourceEditorCommand: NSObject, XCSourceEditorCommand {
@@ -55,7 +55,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         case .assertOutlets:
             assertOutlets()
 
-        case .cast, .read:
+        case .cast, .read, .copy, .nscoding:
             cast(command: command)
         }
     }
