@@ -35,7 +35,7 @@ public enum CommandError: Int, Error {
 enum Command: String {
     case assertOutlets
     case cast
-
+    case read
 }
 
 class SourceEditorCommand: NSObject, XCSourceEditorCommand {
@@ -55,7 +55,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         case .assertOutlets:
             assertOutlets()
 
-        case .cast:
+        case .cast, .read:
             cast(command: command)
         }
     }
@@ -96,6 +96,10 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
     }
 
     func indentationString(level: Int) -> String {
+        var cache = [Int:String]()
+        if let s = cache[level] {
+            return s
+        }
         var prefix = String(repeating: " ", count: level * source.indentationWidth)
         if source.usesTabsForIndentation {
             let replaceWithTab = String(repeating: " ", count: source.tabWidth)
@@ -103,6 +107,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
                 prefix = prefix.replacingOccurrences(of: replaceWithTab, with: "\t")
             }
         }
+        cache[level] = prefix
         return prefix
     }
 

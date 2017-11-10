@@ -187,7 +187,44 @@ private class ParseInfo {
         }
         output.append("\(editor.indentationString(level: 1))}")
 
-        editor.insert(output, at: lineIndex, select: false)
+        editor.insert(output, at: lineIndex, select: true)
+    }
+
+    func createRead(lineIndex: Int, customLines:[String]?, editor: SourceEditorCommand) {
+        var output = [String]()
+        var override = ""
+        if classInheritence == nil {
+            classInheritence = [String]()
+        }
+        if !classInheritence!.contains("DictionaryConvertible") && !isStruct {
+            override = "override"
+        }
+        output.append("\(editor.indentationString(level: 1))\(override) \(classAccess) func read(from dict: JSONDictionary) { // Generated")
+
+        for variable in variables {
+            if !variable.isLet {
+                output += variable.generateRead(nilMissing: false, className: className!, disableHouzzzLogging:disableHouzzzLogging, editor: editor)
+            }
+        }
+
+        if !override.isEmpty {
+            if let superTag = superTag {
+                output.append("\(editor.indentationString(level: 2))guard let superDict = dict.any(forKeyPath: \"\(superTag)\") as? JSONDictionary else {")
+                output.append("\(editor.indentationString(level: 3))return")
+                output.append("\(editor.indentationString(level: 2))}")
+                output.append("\(editor.indentationString(level: 2))super.read(from: superDict)")
+            } else {
+                output.append("\(editor.indentationString(level: 2))super.read(from: dict)")
+            }
+        }
+
+        output.append("\n")
+        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        if let customLines = customLines {
+            output += customLines
+        }
+        output.append("\(editor.indentationString(level: 1))}")
+        editor.insert(output, at: lineIndex)
     }
 }
 
@@ -217,10 +254,22 @@ extension SourceEditorCommand {
         let initRegex = Regex("init\\?\\(dictionary dict: *JSONDictionary\\) *\\{ *// *Generated")
         var parseInfo: ParseInfo?
         var initLines:(start:Int?,end:Int?)
+        var readLines:(start:Int?,end:Int?, custom: [String]?, inRead: Bool, inCustom: Bool) = (start:nil, end:nil, custom:nil, inRead:false, inCustom: false)
+        let readPattern = "func read(from dict: JSONDictionary) { // Generated"
+        let startReadCustomPattern = "// Add custom code after this comment"
         
         enumerateLines { (lineIndex, line, braceLevel, stop) in
             defer {
                 priorBraceLevel = braceLevel
+            }
+
+            if braceLevel > 1 && readLines.inCustom {
+                if readLines.custom == nil {
+                    readLines.custom = [line]
+                } else {
+                    readLines.custom!.append(line)
+                }
+                return
             }
             
             if let info = parseInfo {
@@ -233,12 +282,24 @@ extension SourceEditorCommand {
                             insert(["\n"], at: lineIndex, select: false)
                             info.createInitWithDict(lineIndex: lineIndex + 1, editor: self)
                         }
+                        if let start = readLines.start, let end = readLines.end {
+                            deleteLines(from: start, to: end + 1)
+                            info.createRead(lineIndex: start, customLines: readLines.custom, editor: self)
+                        } else if command == .read {
+                            insert(["\n"], at: lineIndex, select: false)
+                            info.createRead(lineIndex: lineIndex + 1, customLines: readLines.custom, editor: self)
+                        }
                         parseInfo = nil
                     }
                 } else if braceLevel == 1 {
-                  if priorBraceLevel == 2 {
+                    if priorBraceLevel == 2 {
                         if initLines.start != nil && initLines.end == nil {
                             initLines.end = lineIndex
+                        }
+                        if readLines.inRead {
+                            readLines.end = lineIndex
+                            readLines.inRead = false
+                            readLines.inCustom = false
                         }
                     }
                     if ignoreRegex.match(line) && !skipVarRegex.match(line) {
@@ -261,8 +322,14 @@ extension SourceEditorCommand {
                     if priorBraceLevel == 1 {
                         if initRegex.match(line) {
                             initLines.start = lineIndex
+                        } else if line.contains(readPattern) {
+                            readLines.inRead = true
+                            readLines.start = lineIndex
                         }
                         return
+                    }
+                    if readLines.inRead && line.contains(startReadCustomPattern) {
+                        readLines.inCustom = true
                     }
                 }
             } else if braceLevel == 1 && priorBraceLevel == 0, let matches = classRegex.matchGroups(line) {
