@@ -226,6 +226,62 @@ private class ParseInfo {
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
     }
+
+    func createDictionaryRepresentation(lineIndex: Int, editor: SourceEditorCommand) {
+        var output = [String]()
+        var override = ""
+        if classInheritence == nil {
+            classInheritence = [String]()
+        }
+        if !classInheritence!.contains("DictionaryConvertible") && !isStruct {
+            override = "override"
+        }
+        output.append("\(editor.indentationString(level: 1))\(isObjc ? "@objc" : "") \(override) \(classAccess) func dictionaryRepresentation() -> [String: Any] { // Generated")
+        if override.isEmpty {
+            output.append("\(editor.indentationString(level: 2))var dict = [String: Any]()")
+        } else {
+            if let superTag = superTag {
+                output.append("\(editor.indentationString(level: 2))var dict:[String:Any] = [\"\(superTag)\": super.dictionaryRepresentation()]")
+            } else {
+                output.append("\(editor.indentationString(level: 2))var dict = super.dictionaryRepresentation()")
+            }
+        }
+
+        var level = 2
+        for variable in variables {
+            if variable.skip {
+                continue;
+            }
+            let optStr = variable.optional ? "?" : ""
+            let keys = variable.key.first!.components(separatedBy: "/")
+            for (idx, key) in keys.enumerated() {
+                let dName = (idx == 0) ? "dict" : "dict\(idx)"
+                if idx == keys.count - 1 {
+                    output.append("\(editor.indentationString(level: level))if let x = \(variable.name)\(optStr).jsonValue {")
+                    output.append("\(editor.indentationString(level: level + 1))\(dName)[\"\(key)\"] = x")
+                    output.append("\(editor.indentationString(level: level))}")
+
+                    for idx2 in(0 ..< idx).reversed() {
+                        let idx3 = idx2 + 1
+                        let dName = (idx2 == 0) ? "dict" : "dict\(idx2)"
+                        let prevName = "dict\(idx3)"
+                        output.append("\(editor.indentationString(level: level))\(dName)[\"\(keys[idx2])\"] = \(prevName)")
+                        level -= 1
+                        output.append("\(editor.indentationString(level: level))}")
+                    }
+                } else {
+                    let nidx = idx + 1
+                    let nextName =  "dict\(nidx)"
+                    output.append("\(editor.indentationString(level: level))do {")
+                    level += 1
+                    output.append("\(editor.indentationString(level: level))var \(nextName) = \(dName)[\"\(key)\"] as? [String: Any] ?? [String: Any]()")
+                }
+            }
+        }
+        output.append("\(editor.indentationString(level: 2))return dict")
+        output.append("\(editor.indentationString(level: 1))}")
+        editor.insert(output, at: lineIndex)
+    }
 }
 
 
@@ -251,12 +307,14 @@ extension SourceEditorCommand {
         var commentRegex = Regex("^ *//[^!].*$")
         let disableLogging = Regex("//! *nolog")
         let superTagRegex = Regex("//! +super +\"([^\"]+)\"")
-        let initRegex = Regex("init\\?\\(dictionary dict: *JSONDictionary\\) *\\{ *// *Generated")
         var parseInfo: ParseInfo?
+        let initRegex = Regex("init\\?\\(dictionary dict: *JSONDictionary\\) *\\{ *// *Generated")
         var initLines:(start:Int?,end:Int?)
         var readLines:(start:Int?,end:Int?, custom: [String]?, inRead: Bool, inCustom: Bool) = (start:nil, end:nil, custom:nil, inRead:false, inCustom: false)
         let readPattern = "func read(from dict: JSONDictionary) { // Generated"
         let startReadCustomPattern = "// Add custom code after this comment"
+        var dicRepLines:(start:Int?,end:Int?)
+        let dicRepPattern = "func dictionaryRepresentation() -> [String: Any] { // Generated"
         
         enumerateLines { (lineIndex, line, braceLevel, stop) in
             defer {
@@ -289,17 +347,25 @@ extension SourceEditorCommand {
                             insert(["\n"], at: lineIndex, select: false)
                             info.createRead(lineIndex: lineIndex + 1, customLines: readLines.custom, editor: self)
                         }
+                        if let start = dicRepLines.start, let end = dicRepLines.end {
+                            deleteLines(from: start, to: end + 1)
+                            info.createDictionaryRepresentation(lineIndex: start, editor: self)
+                        } else if command == .cast {
+                            insert(["\n"], at: lineIndex, select: false)
+                            info.createDictionaryRepresentation(lineIndex: lineIndex + 1, editor: self)
+                        }
                         parseInfo = nil
                     }
                 } else if braceLevel == 1 {
                     if priorBraceLevel == 2 {
                         if initLines.start != nil && initLines.end == nil {
                             initLines.end = lineIndex
-                        }
-                        if readLines.inRead {
+                        } else if readLines.inRead {
                             readLines.end = lineIndex
                             readLines.inRead = false
                             readLines.inCustom = false
+                        } else if dicRepLines.start != nil && dicRepLines.end == nil {
+                            dicRepLines.end = lineIndex
                         }
                     }
                     if ignoreRegex.match(line) && !skipVarRegex.match(line) {
@@ -325,6 +391,8 @@ extension SourceEditorCommand {
                         } else if line.contains(readPattern) {
                             readLines.inRead = true
                             readLines.start = lineIndex
+                        } else if line.contains(dicRepPattern) {
+                            dicRepLines.start = lineIndex
                         }
                         return
                     }
