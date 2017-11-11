@@ -20,7 +20,8 @@ class ViewController: NSViewController {
         useLogger.state = Defaults.useLogger ?  .on : .off
         nilStrings.state = Defaults.nilEmptyStrings ? .on : .off
         upperCase.state = Defaults.upperCase ? .on : .off
-        saveButton.controlTint = .blueControlTint
+        saveButton.keyEquivalent = "\r"
+        saveButton.isEnabled = false
     }
 
     override var representedObject: Any? {
@@ -33,6 +34,17 @@ class ViewController: NSViewController {
         Defaults.useLogger = useLogger.state == .on
         Defaults.nilEmptyStrings = nilStrings.state == .on
         Defaults.upperCase = upperCase.state == .on
+        saveButton.isEnabled = false
+    }
+
+    @IBAction func enableSave(_ sender: NSButton) {
+        if (useLogger.state == .on) == Defaults.useLogger &&
+            (nilStrings.state == .on) == Defaults.nilEmptyStrings &&
+            Defaults.upperCase == (upperCase.state == .on) {
+            saveButton.isEnabled = false
+        } else {
+        saveButton.isEnabled = true
+        }
     }
 }
 

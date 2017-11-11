@@ -450,7 +450,7 @@
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
 				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode.test1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
@@ -466,7 +466,7 @@
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
 				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode.test1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.0;
