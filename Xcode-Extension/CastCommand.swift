@@ -137,6 +137,34 @@ struct VarInfo {
     }
 }
 
+private enum Function {
+    case initWithCoder
+    case initDictionary
+    case dictionaryRepresentation
+    case copy
+    case read
+    case encode
+}
+
+private class FunctionInfo {
+    var start: Int? = nil
+    var end: Int? = nil
+    var expression: String
+    var inside: Bool = false
+    var inBlock: Bool = false
+    var custom: [String]? = nil
+    let create: (Int, ParseInfo, [String]?, SourceEditorCommand) -> Void
+    fileprivate let condition: (Command, ParseInfo) -> Bool
+
+    init(expression: String, condition: @escaping (Command, ParseInfo) -> Bool, create: @escaping (Int, ParseInfo, [String]?, SourceEditorCommand) -> Void) {
+        self.expression = expression
+        self.condition = condition
+        self.create = create
+    }
+}
+
+
+
 private class ParseInfo {
     var classInheritence: [String]?
     var className: String?
@@ -230,7 +258,7 @@ private class ParseInfo {
         editor.insert(output, at: lineIndex)
     }
 
-    func createDictionaryRepresentation(lineIndex: Int, editor: SourceEditorCommand) {
+    func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -281,12 +309,17 @@ private class ParseInfo {
                 }
             }
         }
-        output.append("\(editor.indentationString(level: 2))return dict")
+        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        if let customLines = customLines {
+            output += customLines
+        } else {
+            output.append("\(editor.indentationString(level: 2))return dict")
+        }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
     }
 
-    func createInitWithCoder(lineIndex: Int, editor: SourceEditorCommand) {
+    func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
         let codingOverride = !classInheritence!.contains("NSCoding")
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public" : classAccess
@@ -300,11 +333,15 @@ private class ParseInfo {
         if codingOverride {
             output.append("\(editor.indentationString(level: 2))super.init(coder:aDecoder)")
         }
+        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        if let customLines = customLines {
+            output += customLines
+        }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
     }
 
-    func createEncodeWithCoder(lineIndex: Int, editor: SourceEditorCommand) {
+    func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
         var output = [String]()
         let codingOverride = !classInheritence!.contains("NSCoding")
         let codingOverrideString = codingOverride ? "override" : ""
@@ -317,14 +354,22 @@ private class ParseInfo {
             output.append("\(editor.indentationString(level: 2))\(variable.encodeCall)")
         }
 
+        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        if let customLines = customLines {
+            output += customLines
+        }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
     }
 
-    func createCopy(lineIndex: Int, editor: SourceEditorCommand) {
+    func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
         var output = [String]()
         output.append("\(editor.indentationString(level: 1))\(classAccess) func copy(with zone: NSZone? = nil) -> Any { // Generated")
         output.append("\(editor.indentationString(level: 2))return NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
+        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        if let customLines = customLines {
+            output += customLines
+        }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
     }
@@ -354,97 +399,82 @@ extension SourceEditorCommand {
         let disableLogging = Regex("//! *nolog")
         let superTagRegex = Regex("//! +super +\"([^\"]+)\"")
         var parseInfo: ParseInfo?
-        let initRegex = Regex("init\\?\\(dictionary dict: *JSONDictionary\\) *\\{ *// *Generated")
-        var initLines:(start:Int?,end:Int?)
-        var readLines:(start:Int?,end:Int?, custom: [String]?, inRead: Bool, inCustom: Bool) = (start:nil, end:nil, custom:nil, inRead:false, inCustom: false)
-        let readPattern = "func read(from dict: JSONDictionary) { // Generated"
         let startReadCustomPattern = "// Add custom code after this comment"
-        var dicRepLines:(start:Int?,end:Int?)
-        let dicRepPattern = "func dictionaryRepresentation() -> [String: Any] { // Generated"
-        var initCoderLines:(start: Int?, end: Int?)
-        var initCoderPattern = "init?(coder aDecoder: NSCoder) { // Generated"
-        var encodeCoderLines:(start:Int?, end:Int?)
-        var encodeCoderPattern = "func encode(with aCoder: NSCoder) { // Generated"
-        var copyLines:(start:Int?, end: Int?)
-        var copyPattern = "func copy(with zone: NSZone? = nil) -> Any { // Generated"
+
+        var functions = [Function: FunctionInfo]()
+        functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
+            info.classInheritence!.contains("NSCopying") || command == .copy
+        }, create: { (line, info, custom, editor) in
+            info.createCopy(lineIndex: line, customLines: custom, editor: editor)
+        })
+        functions[.encode] = FunctionInfo(expression: "func encode(with aCoder: NSCoder) { // Generated", condition: { (command, info) in
+            info.classInheritence!.contains("NSCoding") || command == .copy || command == .nscoding
+        }, create: { (line, info, custom, editor) in
+            info.createEncodeWithCoder(lineIndex: line, customLines: custom, editor: editor)
+        })
+        functions[.initWithCoder] = FunctionInfo(expression: "init?(coder aDecoder: NSCoder) { // Generated", condition: { (command, info) in
+            info.classInheritence!.contains("NSCoding") || command == .copy || command == .nscoding
+        }, create: { (line, info, custom, editor) in
+            info.createInitWithCoder(lineIndex: line, customLines: custom, editor: editor)
+        })
+        functions[.dictionaryRepresentation] = FunctionInfo(expression: "func dictionaryRepresentation() -> [String: Any] { // Generated", condition: { (command, info) in
+            command == .cast
+        }, create: { (line, info, custom, editor) in
+            info.createDictionaryRepresentation(lineIndex: line, customLines: custom, editor: editor)
+        })
+        functions[.read] = FunctionInfo(expression: "func read(from dict: JSONDictionary) { // Generated", condition: { (command, info) in
+            command == .read
+        }, create: { (line, info, custom, editor) in
+            info.createRead(lineIndex: line, customLines: custom, editor: editor)
+        })
+        functions[.initDictionary] = FunctionInfo(expression: "init?(dictionary dict: JSONDictionary) { // *Generated", condition: { (command, info) in
+            command == .cast
+        }, create: { (line, info, _, editor) in
+            info.createInitWithDict(lineIndex: line, editor: editor)
+        })
+
         
         enumerateLines { (lineIndex, line, braceLevel, stop) in
             defer {
                 priorBraceLevel = braceLevel
             }
 
-            if braceLevel > 1 && readLines.inCustom {
-                if readLines.custom == nil {
-                    readLines.custom = [line]
-                } else {
-                    readLines.custom!.append(line)
+            if braceLevel > 1 {
+                for (_, info) in functions {
+                    if info.inBlock {
+                        if info.custom == nil {
+                            info.custom = [line]
+                        } else {
+                            info.custom!.append(line)
+                        }
+                        return
+                    }
                 }
-                return
             }
             
             if let info = parseInfo {
                 if braceLevel == 0 {
                     if priorBraceLevel == 1 {
-                        if let start = initLines.start, let end = initLines.end {
-                            deleteLines(from: start, to: end + 1)
-                            info.createInitWithDict(lineIndex: start, editor: self)
-                        } else if command == .cast {
-                            insert([""], at: lineIndex, select: false)
-                            info.createInitWithDict(lineIndex: lineIndex + 1, editor: self)
-                        }
-                        if let start = readLines.start, let end = readLines.end {
-                            deleteLines(from: start, to: end + 1)
-                            info.createRead(lineIndex: start, customLines: readLines.custom, editor: self)
-                        } else if command == .read {
-                            insert([""], at: lineIndex, select: false)
-                            info.createRead(lineIndex: lineIndex + 1, customLines: readLines.custom, editor: self)
-                        }
-                        if let start = dicRepLines.start, let end = dicRepLines.end {
-                            deleteLines(from: start, to: end + 1)
-                            info.createDictionaryRepresentation(lineIndex: start, editor: self)
-                        } else if command == .cast {
-                            insert([""], at: lineIndex, select: false)
-                            info.createDictionaryRepresentation(lineIndex: lineIndex + 1, editor: self)
-                        }
-                        if let start = copyLines.start, let end = copyLines.end {
-                            deleteLines(from: start, to: end + 1)
-                            info.createCopy(lineIndex: start, editor: self)
-                        } else if info.classInheritence!.contains("NSCopying") || command == .copy {
-                            insert([""], at: lineIndex, select: false)
-                            info.createCopy(lineIndex: lineIndex, editor: self)
-                        }
-                        if let start = initCoderLines.start, let end = initCoderLines.end {
-                            deleteLines(from: start, to: end + 1)
-                            info.createInitWithCoder(lineIndex: start, editor: self)
-                        } else if info.classInheritence!.contains("NSCoding") || command == .copy || command == .nscoding {
-                            insert([""], at: lineIndex, select: false)
-                            info.createInitWithCoder(lineIndex: lineIndex, editor: self)
-                        }
-                        if let start = encodeCoderLines.start, let end = encodeCoderLines.end {
-                            deleteLines(from: start, to: end + 1)
-                            info.createEncodeWithCoder(lineIndex: start, editor: self)
-                        } else if info.classInheritence!.contains("NSCoding") || command == .copy {
-                            insert([""], at: lineIndex, select: false)
-                            info.createEncodeWithCoder(lineIndex: lineIndex, editor: self)
+                        for (_, value) in functions {
+                            if let start = value.start, let end = value.end {
+                                deleteLines(from: start, to: end + 1)
+                                value.create(start, info, value.custom, self)
+                            } else if value.condition(command, info) {
+                                insert([""], at: lineIndex, select: false)
+                                value.create(lineIndex + 1, info, value.custom, self)
+                            }
                         }
                         parseInfo = nil
                     }
                 } else if braceLevel == 1 {
                     if priorBraceLevel == 2 {
-                        if initLines.start != nil && initLines.end == nil {
-                            initLines.end = lineIndex
-                        } else if readLines.inRead {
-                            readLines.end = lineIndex
-                            readLines.inRead = false
-                            readLines.inCustom = false
-                        } else if dicRepLines.start != nil && dicRepLines.end == nil {
-                            dicRepLines.end = lineIndex
-                        } else if copyLines.start != nil && copyLines.end == nil {
-                            copyLines.end = lineIndex
-                        } else if initCoderLines.start != nil && initCoderLines.end == nil {
-                            initCoderLines.end = lineIndex
-                        } else if encodeCoderLines.start != nil && encodeCoderLines.end == nil {
-                            encodeCoderLines.end = lineIndex
+                        for (_,info) in functions {
+                            if info.inside {
+                                info.end = lineIndex
+                                info.inBlock = false
+                                info.inside = false
+                                break
+                            }
                         }
                     }
                     if ignoreRegex.match(line) && !skipVarRegex.match(line) {
@@ -465,24 +495,19 @@ extension SourceEditorCommand {
                     }
                 } else if braceLevel == 2 {
                     if priorBraceLevel == 1 {
-                        if initRegex.match(line) {
-                            initLines.start = lineIndex
-                        } else if line.contains(readPattern) {
-                            readLines.inRead = true
-                            readLines.start = lineIndex
-                        } else if line.contains(dicRepPattern) {
-                            dicRepLines.start = lineIndex
-                        } else if line.contains(copyPattern) {
-                            copyLines.start = lineIndex
-                        } else if line.contains(initCoderPattern) {
-                            initCoderLines.start = lineIndex
-                        } else if line.contains(encodeCoderPattern) {
-                            encodeCoderLines.start = lineIndex
+                        for (_,info) in functions {
+                            if line.contains(info.expression) {
+                                info.start = lineIndex
+                                info.inside = true
+                            }
                         }
                         return
                     }
-                    if readLines.inRead && line.contains(startReadCustomPattern) {
-                        readLines.inCustom = true
+                    for (_,info) in functions {
+                        if info.inside && line.contains(startReadCustomPattern) {
+                            info.inBlock = true
+                            break
+                        }
                     }
                 }
             } else if braceLevel == 1 && priorBraceLevel == 0, let matches = classRegex.matchGroups(line) {
