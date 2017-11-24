@@ -405,7 +405,6 @@ extension SourceEditorCommand {
             return
         }
         
-        var priorBraceLevel = 0
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
         let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?(?://! *(custom))?")
         let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?(?://! *(custom))?")
@@ -458,11 +457,7 @@ extension SourceEditorCommand {
             info.createCustomInit(lineIndex: line, customLines: custom, editor: editor)
         })
         
-        enumerateLines { (lineIndex, line, braceLevel, stop) in
-            defer {
-                priorBraceLevel = braceLevel
-            }
-
+        enumerateLines { (lineIndex, line, braceLevel, priorBraceLevel, stop) in
             if braceLevel > 1 {
                 for (_, info) in functions {
                     if info.inBlock {

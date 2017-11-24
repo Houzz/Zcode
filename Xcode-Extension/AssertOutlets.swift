@@ -36,7 +36,6 @@ extension SourceEditorCommand {
         }
         let cursor = (source.selections[0] as! XCSourceTextRange).start.line
 
-        var previousLevel = 0
         var outlets = [String]()
         var beginAsserts: Int?
         var endAsserts: Int?
@@ -44,10 +43,7 @@ extension SourceEditorCommand {
         var viewDidLine: Int?
         var classStartLine = 0
 
-        enumerateLines { (lineIndex, line, braceLevel, stop) in
-            defer {
-                previousLevel = braceLevel
-            }
+        enumerateLines { (lineIndex, line, braceLevel, previousLevel, stop) in
             if previousLevel == 0 && braceLevel == 1 {
                 classStartLine = lineIndex
             }

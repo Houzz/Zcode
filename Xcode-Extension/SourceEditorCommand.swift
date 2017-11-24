@@ -118,8 +118,9 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
 
 
 
-    func enumerateLines(withBlock handler: (_ lineIndex: Int, _ line: String, _ braceLevel: Int, _ stop: inout Bool) -> Void) {
+    func enumerateLines(withBlock handler: (_ lineIndex: Int, _ line: String, _ braceLevel: Int, _ previousBraceLevel: Int, _ stop: inout Bool) -> Void) {
         var braceLevel = 0
+        var previousBraceLevel = 0
         var stop = false
         var inCComment = false
         var inString = false
@@ -131,7 +132,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         var state = State.code
         for lineIndex in 0 ..< source.lines.count {
             let line = source.lines[lineIndex] as! String
-            if line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty {
+            if line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty  {
                 continue
             }
 
@@ -180,10 +181,11 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
                 }
             }
 
-            handler(lineIndex, line.trimTrailingWhitespace(), braceLevel, &stop)
+            handler(lineIndex, line.trimTrailingWhitespace(), braceLevel, previousBraceLevel, &stop)
             if stop {
                 break
             }
+            previousBraceLevel = braceLevel
         }
     }
 }
