@@ -8,6 +8,8 @@
 
 import Foundation
 
+let startReadCustomPattern = "// Add custom code after this comment"
+
 
 struct VarInfo {
     let name: String
@@ -133,7 +135,7 @@ struct VarInfo {
     }
 
     func getInitAssign() -> String {
-        return "\t\tself.\(name) = \(name)"
+        return "self.\(name) = \(name)"
     }
 }
 
@@ -251,7 +253,7 @@ private class ParseInfo {
         }
 
         output.append("")
-        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
         }
@@ -310,7 +312,7 @@ private class ParseInfo {
                 }
             }
         }
-        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
         } else {
@@ -334,7 +336,7 @@ private class ParseInfo {
         if codingOverride {
             output.append("\(editor.indentationString(level: 2))super.init(coder:aDecoder)")
         }
-        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
         }
@@ -355,7 +357,7 @@ private class ParseInfo {
             output.append("\(editor.indentationString(level: 2))\(variable.encodeCall)")
         }
 
-        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
         }
@@ -367,7 +369,7 @@ private class ParseInfo {
         var output = [String]()
         output.append("\(editor.indentationString(level: 1))\(classAccess) func copy(with zone: NSZone? = nil) -> Any { // Generated")
         output.append("\(editor.indentationString(level: 2))return NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
-        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
         }
@@ -385,7 +387,7 @@ private class ParseInfo {
                 output.append("\(editor.indentationString(level: 2))\(variable.getInitAssign())")
             }
         }
-        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
         }
@@ -405,9 +407,9 @@ extension SourceEditorCommand {
         
         var priorBraceLevel = 0
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
-        let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *(?://! *(?:= *([^ ]+))? *(v?)\"([^\"]+)\")?(?://! *(custom))?")
+        let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?(?://! *(custom))?")
+        let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?(?://! *(custom))?")
         let skipVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *ignore json")
-        let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *(?://! *(v?)\"([^ ]+)\")?(?://! *(?:= *([^ ]+))? *(custom))?")
         let ignoreRegex = Regex("(.*)//! *ignore", options: [.caseInsensitive])
         let enumRegex = Regex("enum ([^ :]+)[ :]+([^ ]+)")
         let accessRegex = Regex("(public|private|internal|open)")
@@ -418,7 +420,6 @@ extension SourceEditorCommand {
         let disableLogging = Regex("//! *nolog")
         let superTagRegex = Regex("//! +super +\"([^\"]+)\"")
         var parseInfo: ParseInfo?
-        let startReadCustomPattern = "// Add custom code after this comment"
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
