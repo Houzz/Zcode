@@ -45,11 +45,14 @@ extension SourceEditorCommand {
         var classStartLine = 0
 
         enumerateLines { (lineIndex, line, braceLevel, stop) in
+            defer {
+                previousLevel = braceLevel
+            }
             if previousLevel == 0 && braceLevel == 1 {
                 classStartLine = lineIndex
             }
 
-            if braceLevel == 1 {
+            if braceLevel == 1 || (previousLevel == 1 && braceLevel == 2) {
                 if let matches = iboutletEx.matchGroups(line), let name = matches[1] {
                     outlets.append(name)
                 }
@@ -105,7 +108,6 @@ extension SourceEditorCommand {
 
                 stop = true
             }
-            previousLevel = braceLevel
         }
 
         finish()
