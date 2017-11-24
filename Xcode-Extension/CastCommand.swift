@@ -144,6 +144,7 @@ private enum Function {
     case copy
     case read
     case encode
+    case customInit
 }
 
 private class FunctionInfo {
@@ -373,6 +374,24 @@ private class ParseInfo {
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
     }
+
+    func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
+        var output = [String]()
+        let initAccess =  classAccess == "open" ? "public" : classAccess
+        let params = variables.flatMap { return $0.getInitParam() }.joined(separator: ", ")
+        output.append("\(editor.indentationString(level: 1))\(initAccess) init(\(params)) { // Generated Init")
+        for variable in variables {
+            if variable.skip == false {
+                output.append("\(editor.indentationString(level: 2))\(variable.getInitAssign())")
+            }
+        }
+        output.append("\(editor.indentationString(level: 2))// Add custom code after this comment")
+        if let customLines = customLines {
+            output += customLines
+        }
+        output.append("\(editor.indentationString(level: 1))}")
+        editor.insert(output, at: lineIndex)
+    }
 }
 
 
@@ -403,17 +422,17 @@ extension SourceEditorCommand {
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
-            info.classInheritence!.contains("NSCopying") || command == .copy
+            (info.classInheritence!.contains("NSCopying") && command == .cast) || command == .copy
         }, create: { (line, info, custom, editor) in
             info.createCopy(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.encode] = FunctionInfo(expression: "func encode(with aCoder: NSCoder) { // Generated", condition: { (command, info) in
-            info.classInheritence!.contains("NSCoding") || command == .copy || command == .nscoding
+            (info.classInheritence!.contains("NSCoding") && command == .cast) || command.isOneOf(.copy, .nscoding)
         }, create: { (line, info, custom, editor) in
             info.createEncodeWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.initWithCoder] = FunctionInfo(expression: "init?(coder aDecoder: NSCoder) { // Generated", condition: { (command, info) in
-            info.classInheritence!.contains("NSCoding") || command == .copy || command == .nscoding
+            (info.classInheritence!.contains("NSCoding") && command == .cast) || command.isOneOf(.copy, .nscoding)
         }, create: { (line, info, custom, editor) in
             info.createInitWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })
@@ -427,12 +446,16 @@ extension SourceEditorCommand {
         }, create: { (line, info, custom, editor) in
             info.createRead(lineIndex: line, customLines: custom, editor: editor)
         })
-        functions[.initDictionary] = FunctionInfo(expression: "init?(dictionary dict: JSONDictionary) { // *Generated", condition: { (command, info) in
+        functions[.initDictionary] = FunctionInfo(expression: "init?(dictionary dict: JSONDictionary) { // Generated", condition: { (command, info) in
             command == .cast
         }, create: { (line, info, _, editor) in
             info.createInitWithDict(lineIndex: line, editor: editor)
         })
-
+        functions[.customInit] = FunctionInfo(expression: "// Generated Init", condition: { (command, _) -> Bool in
+            command == .customInit
+        }, create: { (line, info, custom, editor) in
+            info.createCustomInit(lineIndex: line, customLines: custom, editor: editor)
+        })
         
         enumerateLines { (lineIndex, line, braceLevel, stop) in
             defer {

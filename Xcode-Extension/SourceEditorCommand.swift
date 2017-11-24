@@ -34,8 +34,13 @@ public enum CommandError: Int, Error {
 
 enum Command: String {
     case assertOutlets
-    case cast
-    case read, copy, nscoding
+    case cast, read, copy, nscoding, customInit
+}
+
+extension Command {
+    func isOneOf(_ args: Command...) -> Bool {
+        return args.contains(self)
+    }
 }
 
 class SourceEditorCommand: NSObject, XCSourceEditorCommand {
@@ -55,7 +60,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         case .assertOutlets:
             assertOutlets()
 
-        case .cast, .read, .copy, .nscoding:
+        case .cast, .read, .copy, .nscoding, .customInit:
             cast(command: command)
         }
     }
