@@ -46,6 +46,8 @@ extension Command {
 class SourceEditorCommand: NSObject, XCSourceEditorCommand {
     var source: XCSourceTextBuffer!
     private var completionHandler: ((Error?) -> Void)!
+//    var edits = [EditOperation]()
+    private var linePos: Int = 0
 
     func perform(with invocation: XCSourceEditorCommandInvocation, completionHandler: @escaping (Error?) -> Void ) -> Void {
         guard let command = Command(rawValue: invocation.commandIdentifier) else {
@@ -86,6 +88,9 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
     func deleteLines(from: Int, to: Int) {
         for i in (from ..< to).reversed() {
             source.lines.removeObject(at: i)
+            if linePos + 1 >= i {
+                linePos -= i
+            }
         }
     }
 
@@ -94,9 +99,12 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         for line in newlines {
             source.lines.insert(line, at: insertion)
             insertion += 1
+            if linePos + 1 >= insertion {
+                linePos += 1
+            }
         }
         if select {
-        selectLines(from: idx, count: newlines.count)
+            selectLines(from: idx, count: newlines.count)
         }
     }
 
@@ -130,8 +138,11 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
             case ccomment
         }
         var state = State.code
-        for lineIndex in 0 ..< source.lines.count {
-            let line = source.lines[lineIndex] as! String
+        while linePos < source.lines.count {
+            defer {
+                linePos += 1
+            }
+            let line = source.lines[linePos] as! String
             if line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty  {
                 continue
             }
@@ -181,7 +192,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
                 }
             }
 
-            handler(lineIndex, line.trimTrailingWhitespace(), braceLevel, previousBraceLevel, &stop)
+            handler(linePos, line.trimTrailingWhitespace(), braceLevel, previousBraceLevel, &stop)
             if stop {
                 break
             }

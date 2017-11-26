@@ -368,11 +368,12 @@ private class ParseInfo {
     func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
         var output = [String]()
         output.append("\(editor.indentationString(level: 1))\(classAccess) func copy(with zone: NSZone? = nil) -> Any { // Generated")
-        output.append("\(editor.indentationString(level: 2))return NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
+        output.append("\(editor.indentationString(level: 2))let aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
         }
+        output.append("\(editor.indentationString(level: 2))return aCopy")
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
     }
