@@ -85,6 +85,10 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         source.selections[0] = XCSourceTextRange(start: pos, end: pos)
     }
 
+    var cursorPosition: XCSourceTextPosition {
+        return (source.selections[0] as! XCSourceTextRange).start
+    }
+
     func deleteLines(from: Int, to: Int) {
         for i in (from ..< to).reversed() {
             source.lines.removeObject(at: i)

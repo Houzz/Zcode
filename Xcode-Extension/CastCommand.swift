@@ -156,10 +156,10 @@ private class FunctionInfo {
     var inside: Bool = false
     var inBlock: Bool = false
     var custom: [String]? = nil
-    let create: (Int, ParseInfo, [String]?, SourceEditorCommand) -> Void
+    let create: (Int, ParseInfo, [String]?, SourceEditorCommand) -> Int
     fileprivate let condition: (Command, ParseInfo) -> Bool
 
-    init(expression: String, condition: @escaping (Command, ParseInfo) -> Bool, create: @escaping (Int, ParseInfo, [String]?, SourceEditorCommand) -> Void) {
+    init(expression: String, condition: @escaping (Command, ParseInfo) -> Bool, create: @escaping (Int, ParseInfo, [String]?, SourceEditorCommand) -> Int) {
         self.expression = expression
         self.condition = condition
         self.create = create
@@ -178,7 +178,7 @@ private class ParseInfo {
     var superTag: String? = nil
     var variables = [VarInfo]()
 
-    func createInitWithDict(lineIndex: Int, editor: SourceEditorCommand) {
+    func createInitWithDict(lineIndex: Int, editor: SourceEditorCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -222,9 +222,10 @@ private class ParseInfo {
         output.append("\(editor.indentationString(level: 1))}")
 
         editor.insert(output, at: lineIndex, select: true)
+        return output.count
     }
 
-    func createRead(lineIndex: Int, customLines:[String]?, editor: SourceEditorCommand) {
+    func createRead(lineIndex: Int, customLines:[String]?, editor: SourceEditorCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -259,9 +260,10 @@ private class ParseInfo {
         }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
+        return output.count
     }
 
-    func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
+    func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -320,9 +322,10 @@ private class ParseInfo {
         }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
+        return output.count
     }
 
-    func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
+    func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
         let codingOverride = !classInheritence!.contains("NSCoding")
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public" : classAccess
@@ -342,9 +345,10 @@ private class ParseInfo {
         }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
+        return output.count
     }
 
-    func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
+    func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
         var output = [String]()
         let codingOverride = !classInheritence!.contains("NSCoding")
         let codingOverrideString = codingOverride ? "override" : ""
@@ -363,9 +367,10 @@ private class ParseInfo {
         }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
+        return output.count
     }
 
-    func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
+    func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
         var output = [String]()
         output.append("\(editor.indentationString(level: 1))\(classAccess) func copy(with zone: NSZone? = nil) -> Any { // Generated")
         output.append("\(editor.indentationString(level: 2))let aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
@@ -376,9 +381,10 @@ private class ParseInfo {
         output.append("\(editor.indentationString(level: 2))return aCopy")
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
+        return output.count
     }
 
-    func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) {
+    func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public" : classAccess
         let params = variables.flatMap { return $0.getInitParam() }.joined(separator: ", ")
@@ -394,6 +400,7 @@ private class ParseInfo {
         }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
+        return output.count
     }
 }
 
@@ -411,20 +418,16 @@ extension SourceEditorCommand {
         let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?(?://! *(custom))?")
         let skipVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *ignore json")
         let ignoreRegex = Regex("(.*)//! *ignore", options: [.caseInsensitive])
-        let enumRegex = Regex("enum ([^ :]+)[ :]+([^ ]+)")
         let accessRegex = Regex("(public|private|internal|open)")
-        var braceLevel = 0
-        var importRegex = Regex("import +([^ ]+)")
-        var inImportBlock = false
-        var commentRegex = Regex("^ *//[^!].*$")
         let disableLogging = Regex("//! *nolog")
         let superTagRegex = Regex("//! +super +\"([^\"]+)\"")
         var parseInfo: ParseInfo?
+        var startClassLine = 0
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
             (info.classInheritence!.contains("NSCopying") && command == .cast) || command == .copy
-        }, create: { (line, info, custom, editor) in
+        }, create: { (line, info, custom, editor) -> Int in
             info.createCopy(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.encode] = FunctionInfo(expression: "func encode(with aCoder: NSCoder) { // Generated", condition: { (command, info) in
@@ -458,7 +461,8 @@ extension SourceEditorCommand {
             info.createCustomInit(lineIndex: line, customLines: custom, editor: editor)
         })
         
-        enumerateLines { (lineIndex, line, braceLevel, priorBraceLevel, stop) in
+        enumerateLines { (in_lineIndex, line, braceLevel, priorBraceLevel, stop) in
+            var lineIndex = in_lineIndex
             if braceLevel > 1 {
                 for (_, info) in functions {
                     if info.inBlock {
@@ -475,16 +479,32 @@ extension SourceEditorCommand {
             if let info = parseInfo {
                 if braceLevel == 0 {
                     if priorBraceLevel == 1 {
-                        for (_, value) in functions {
-                            if let start = value.start, let end = value.end {
-                                deleteLines(from: start, to: end + 1)
-                                value.create(start, info, value.custom, self)
-                            } else if value.condition(command, info) {
-                                insert([""], at: lineIndex, select: false)
-                                value.create(lineIndex + 1, info, value.custom, self)
+                        if lineIndex >= cursorPosition.line && cursorPosition.line >= startClassLine {
+                            for (key, value) in functions {
+                                if let start = value.start, let end = value.end {
+                                    deleteLines(from: start, to: end + 1)
+                                    if lineIndex > start {
+                                        lineIndex -= min(end, lineIndex) - start + 1
+                                    }
+                                    lineIndex += value.create(start, info, value.custom, self)
+                                } else if value.condition(command, info) {
+                                    insert([""], at: lineIndex, select: false)
+                                    _ = value.create(lineIndex + 1, info, value.custom, self)
+                                }
+                                functions[key]?.start = nil
+                                functions[key]?.end = nil
+                                functions[key]?.custom = nil
                             }
+                            parseInfo = nil
+                            stop = true
+                        } else {
+                            for (key, _) in functions {
+                                functions[key]?.start = nil
+                                functions[key]?.end = nil
+                                functions[key]?.custom = nil
+                            }
+                            parseInfo = nil
                         }
-                        parseInfo = nil
                     }
                 } else if braceLevel == 1 {
                     if priorBraceLevel == 2 {
@@ -532,6 +552,7 @@ extension SourceEditorCommand {
                 }
             } else if braceLevel == 1 && priorBraceLevel == 0, let matches = classRegex.matchGroups(line) {
                 parseInfo = ParseInfo()
+                startClassLine = lineIndex
                 parseInfo?.classInheritence = matches[3]?.replacingOccurrences(of: " ", with: "").components(separatedBy: ",")
                 parseInfo?.className = matches[2]
                 parseInfo?.isStruct = (matches[1] == "struct")
