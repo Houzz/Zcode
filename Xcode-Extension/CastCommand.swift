@@ -377,8 +377,9 @@ private class ParseInfo {
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
+        } else {
+            output.append("\(editor.indentationString(level: 2))return aCopy")
         }
-        output.append("\(editor.indentationString(level: 2))return aCopy")
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
         return output.count
