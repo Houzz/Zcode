@@ -142,9 +142,21 @@ struct VarInfo {
         }
         let assignExpr = assignments.joined(separator: " ?? ")
         if (optional || isNullable || defaultValue != nil) && doNil {
+            if type == "String" && Defaults.nilEmptyStrings {
+                output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr), !v.isEmpty {")
+                output.append("\(editor.indentationString(level: 3))\(name) = v")
+                output.append("\(editor.indentationString(level: 2))} else {")
+                output.append("\(editor.indentationString(level: 3))\(name) = nil")
+                output.append("\(editor.indentationString(level: 2))}")
+            } else {
             output.append("\(editor.indentationString(level: 2))\(name) = \(assignExpr)")
+            }
         } else {
+            if type == "String" && Defaults.nilEmptyStrings {
+                output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr), !v.isEmpty {")
+            } else {
             output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr) {")
+            }
             output.append("\(editor.indentationString(level: 3))\(name) = v")
             output.append("\(editor.indentationString(level: 2))}")
             if doNil {
