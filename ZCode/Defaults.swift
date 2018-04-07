@@ -9,39 +9,55 @@
 import Foundation
 import AppKit
 
+public enum CaseType: String {
+    case none = "none"
+    case upper = "upper"
+    case snake = "snake"
+}
+
 class Defaults {
     static let userDefaults = UserDefaults(suiteName: "J8ZST4AX3A.com.houzz.zcode")!
+    public enum Keys {
+        case nilStrings
+        case keyCase
+        case useLogger
+    }
+    private static var sessionValue = [Keys: Any]()
 
     public class func register() {
         let def: [String: Any] = [
             "nil": true,
-            "upper": true,
+            "case": CaseType.upper.rawValue,
             "logger": true
         ]
         userDefaults.register(defaults: def)
     }
 
+    public class func override(_ key: Keys, value: Any) {
+        sessionValue[key] = value
+    }
+
     static var nilEmptyStrings: Bool {
         get {
-            return userDefaults.bool(forKey: "nil")
+            return sessionValue[.nilStrings] as? Bool ?? userDefaults.bool(forKey: "nil")
         }
         set {
             userDefaults.set(newValue, forKey: "nil")
         }
     }
 
-    static var upperCase: Bool {
+    static var keyCase: CaseType {
         get {
-            return userDefaults.bool(forKey: "upper")
+            return sessionValue[.keyCase] as? CaseType ?? CaseType(rawValue: userDefaults.object(forKey: "case") as? String ?? "none")!
         }
         set {
-            userDefaults.set(newValue, forKey: "upper")
+            userDefaults.set(newValue.rawValue, forKey: "case")
         }
     }
 
     static var useLogger: Bool {
         get {
-            return userDefaults.bool(forKey: "logger")
+            return sessionValue[.useLogger] as? Bool ?? userDefaults.bool(forKey: "logger")
         }
         set {
             userDefaults.set(newValue, forKey: "logger")

@@ -10,6 +10,47 @@ import Foundation
 
 let startReadCustomPattern = "// Add custom code after this comment"
 
+extension String {
+    func snakeCased() -> String {
+        let pattern = "([a-z0-9])([A-Z])"
+        let regex = try! NSRegularExpression(pattern: pattern, options: [])
+        let range = NSRange(location: 0, length: self.count)
+        return regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: "$1_$2").lowercased() 
+    }
+
+    func jsonKey(asIs: Bool) -> String {
+        let correctCaseKey: String = trimmingCharacters(in: CharacterSet.whitespaces)
+        if asIs {
+            return correctCaseKey
+        }
+        switch Defaults.keyCase {
+        case .none:
+            return correctCaseKey
+
+        case .upper:
+            return "\(correctCaseKey[0].uppercased())\(correctCaseKey[1 ..< correctCaseKey.count])"
+
+        case .snake:
+            return correctCaseKey.snakeCased()
+        }
+    }
+}
+
+extension Bool {
+    init?(onoff: String) {
+        switch onoff.lowercased() {
+        case "on":
+            self = true
+
+        case "off":
+            self = false
+
+        default:
+            return nil
+        }
+    }
+}
+
 
 struct VarInfo {
     let name: String
@@ -40,13 +81,7 @@ struct VarInfo {
         }
 
         self.key = (in_key ?? name).components(separatedBy: "??").map {
-            return $0.components(separatedBy: "/").map({
-                let correctCaseKey: String = $0.trimmingCharacters(in: CharacterSet.whitespaces)
-                if Defaults.upperCase && !asIsKey {
-                    return "\(correctCaseKey[0].uppercased())\(correctCaseKey[1 ..< correctCaseKey.count])"
-                }
-                return correctCaseKey
-            }).joined(separator:"/")
+            $0.components(separatedBy: "/").map { $0.jsonKey(asIs: asIsKey) }.joined(separator:"/")
         }
         self.defaultValue = defaultValue
     }
@@ -426,6 +461,9 @@ extension SourceEditorCommand {
         let superTagRegex = Regex("//! +super +\"([^\"]+)\"")
         var parseInfo: ParseInfo?
         var startClassLine = 0
+        let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
+        let logCommand = Regex("//! *zcode: +logger +(on|off)", options: [.caseInsensitive])
+        let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off)", options: [.caseInsensitive])
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
@@ -477,6 +515,14 @@ extension SourceEditorCommand {
                         return
                     }
                 }
+            } else if braceLevel == 0 {
+                if let matches: [String?] = caseCommand.matchGroups(line), let type = CaseType(rawValue: matches[1]?.lowercased() ?? "") {
+                    Defaults.override(.keyCase, value: type)
+                } else if let matches: [String?] = logCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
+                    Defaults.override(.useLogger, value: v)
+                } else if let matches: [String?] = nilCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
+                    Defaults.override(.nilStrings, value: v)
+              }
             }
             
             if let info = parseInfo {
