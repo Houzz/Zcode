@@ -146,8 +146,14 @@ struct VarInfo {
                 output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr), !v.isEmpty {")
                 output.append("\(editor.indentationString(level: 3))\(name) = v")
                 output.append("\(editor.indentationString(level: 2))} else {")
-                
+                if optional {
                 output.append("\(editor.indentationString(level: 3))\(name) = nil")
+                } else {
+                    if Defaults.useLogger && !disableHouzzzLogging {
+                        output.append("\(editor.indentationString(level: 3))LogError(\"Error: \(className).\(name) failed init\")")
+                    }
+                    output.append("\(editor.indentationString(level: 3))return nil")
+                }
                 output.append("\(editor.indentationString(level: 2))}")
             } else {
             output.append("\(editor.indentationString(level: 2))\(name) = \(assignExpr)")
