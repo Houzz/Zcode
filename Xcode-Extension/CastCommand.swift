@@ -133,7 +133,13 @@ struct VarInfo {
             let caseName = "\(name[0].uppercased())\(name[1 ..< name.count])"
             assignments = [ "\(className).parse\(caseName)(from: dict)"]
         } else {
-            assignments = key.map { "dict.value(for: \"\($0)\")" }
+            assignments = key.map {
+                if type == "String" && Defaults.nilEmptyStrings {
+                    return "dict.value(for: \"\($0)\")?.nilEmpty"
+                } else {
+                    return "dict.value(for: \"\($0)\")"
+                }
+            }
         }
         if doNil {
             if let defaultValue = defaultValue {
@@ -142,28 +148,9 @@ struct VarInfo {
         }
         let assignExpr = assignments.joined(separator: " ?? ")
         if (optional || isNullable || defaultValue != nil) && doNil {
-            if type == "String" && Defaults.nilEmptyStrings {
-                output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr), !v.isEmpty {")
-                output.append("\(editor.indentationString(level: 3))\(name) = v")
-                output.append("\(editor.indentationString(level: 2))} else {")
-                if optional {
-                output.append("\(editor.indentationString(level: 3))\(name) = nil")
-                } else {
-                    if Defaults.useLogger && !disableHouzzzLogging {
-                        output.append("\(editor.indentationString(level: 3))LogError(\"Error: \(className).\(name) failed init\")")
-                    }
-                    output.append("\(editor.indentationString(level: 3))return nil")
-                }
-                output.append("\(editor.indentationString(level: 2))}")
-            } else {
             output.append("\(editor.indentationString(level: 2))\(name) = \(assignExpr)")
-            }
         } else {
-            if type == "String" && Defaults.nilEmptyStrings {
-                output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr), !v.isEmpty {")
-            } else {
             output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr) {")
-            }
             output.append("\(editor.indentationString(level: 3))\(name) = v")
             output.append("\(editor.indentationString(level: 2))}")
             if doNil {
@@ -604,16 +591,16 @@ extension SourceEditorCommand {
                             info.superTag = str
                         }
                     }
-                } else if braceLevel == 2 {
-                    if priorBraceLevel == 1 {
+                    if braceLevel == 2 {
                         for (_,info) in functions {
                             if line.contains(info.expression) {
                                 info.start = lineIndex
                                 info.inside = true
+                                return
                             }
                         }
-                        return
                     }
+                } else if braceLevel == 2 {
                     for (_,info) in functions {
                         if info.inside && line.contains(startReadCustomPattern) {
                             info.inBlock = true
