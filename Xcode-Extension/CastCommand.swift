@@ -146,6 +146,7 @@ struct VarInfo {
                 output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr), !v.isEmpty {")
                 output.append("\(editor.indentationString(level: 3))\(name) = v")
                 output.append("\(editor.indentationString(level: 2))} else {")
+                
                 output.append("\(editor.indentationString(level: 3))\(name) = nil")
                 output.append("\(editor.indentationString(level: 2))}")
             } else {
@@ -435,7 +436,7 @@ private class ParseInfo {
     func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public" : classAccess
-        let params = variables.flatMap { return $0.getInitParam() }.joined(separator: ", ")
+        let params = variables.compactMap { return $0.getInitParam() }.joined(separator: ", ")
         output.append("\(editor.indentationString(level: 1))\(initAccess) init(\(params)) { // Generated Init")
         for variable in variables {
             if variable.skip == false {
@@ -462,9 +463,9 @@ extension SourceEditorCommand {
         }
         
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
-        let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?")
+        let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *\\{* *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?")
         let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *custom")
-        let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?")
+        let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *\\{* *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?")
         let customDictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *//! *custom")
         let skipVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *ignore json")
         let ignoreRegex = Regex("(.*)//! *ignore", options: [.caseInsensitive])
@@ -474,8 +475,8 @@ extension SourceEditorCommand {
         var parseInfo: ParseInfo?
         var startClassLine = 0
         let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
-        let logCommand = Regex("//! *zcode: +logger +(on|off)", options: [.caseInsensitive])
-        let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off)", options: [.caseInsensitive])
+        let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
+        let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
@@ -567,8 +568,7 @@ extension SourceEditorCommand {
                             parseInfo = nil
                         }
                     }
-                } else if braceLevel == 1 {
-                    if priorBraceLevel == 2 {
+                } else if priorBraceLevel == 2 && braceLevel == 1 {
                         for (_,info) in functions {
                             if info.inside {
                                 info.end = lineIndex
@@ -577,7 +577,7 @@ extension SourceEditorCommand {
                                 break
                             }
                         }
-                    }
+                } else if priorBraceLevel == 1 {
                     if ignoreRegex.match(line) && !skipVarRegex.match(line) {
                         return // ignore these
                     } else if disableLogging.match(line) {

@@ -153,6 +153,7 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
 
             var i = 0
             let count = line.count
+            let currentBraceLevel = braceLevel
             out: while i < count {
                 defer {
                     i += 1

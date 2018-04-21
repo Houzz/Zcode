@@ -161,20 +161,7 @@ public extension String {
     }
 }
 
-extension NSString {
 
-    public func validPhone() -> String? {
-        return (self as String).validPhone()
-    }
-
-    public static var tldListForEmails: Set<String> {
-        return String.tldListForEmails
-    }
-
-    public func validEmail(tldList: Set<String>?) -> String? {
-        return (self as String).validEmail(tldList: tldList)
-    }
-}
 
 
 
