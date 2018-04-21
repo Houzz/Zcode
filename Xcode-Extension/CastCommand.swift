@@ -135,7 +135,7 @@ struct VarInfo {
         } else {
             assignments = key.map {
                 if type == "String" && Defaults.nilEmptyStrings {
-                    return "dict.value(for: \"\($0)\")?.nilEmpty"
+                    return "nilEmpty(dict.value(for: \"\($0)\"))"
                 } else {
                     return "dict.value(for: \"\($0)\")"
                 }
