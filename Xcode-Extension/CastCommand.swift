@@ -457,7 +457,7 @@ extension SourceEditorCommand {
         
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
         let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *\\{* *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?")
-        let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *custom")
+        let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *custom")
         let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *\\{* *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?")
         let customDictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *//! *custom")
         let skipVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *ignore json")
@@ -583,7 +583,7 @@ extension SourceEditorCommand {
                     } else if let matches: [String?] = dictRegex.matchGroups(line) {
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
                    } else if let matches: [String?] = customVarRegex.matchGroups(line) {
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: nil, asIsKey: false, key: nil, useCustom: true, className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
                    } else if let matches: [String?] = varRegex.matchGroups(line) {
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
                     } else if let matches: [String?] = superTagRegex.matchGroups(line) {
