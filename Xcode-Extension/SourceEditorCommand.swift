@@ -45,7 +45,8 @@ extension Command {
 
 class SourceEditorCommand: NSObject, XCSourceEditorCommand {
     var source: XCSourceTextBuffer!
-    private var completionHandler: ((Error?) -> Void)!
+
+    private var completionHandler: ((Error?) -> Void)?
 //    var edits = [EditOperation]()
     private var linePos: Int = 0
 
@@ -58,6 +59,11 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         source = invocation.buffer
         self.completionHandler = completionHandler
 
+        if let message = SourceEditorExtension.updateMessage {
+            finish(updateMessage: message)
+            return
+        }
+
         switch command {
         case .assertOutlets:
             assertOutlets()
@@ -69,7 +75,14 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
 
     func finish(error: CommandError? = nil) {
         source = nil
-        completionHandler(error?.error)
+        completionHandler?(error?.error)
+        completionHandler = nil
+    }
+
+    func finish(updateMessage: String) {
+        source = nil
+        let error = NSError(domain: "ZCode", code: 200, userInfo: [NSLocalizedDescriptionKey: updateMessage])
+        completionHandler?(error)
         completionHandler = nil
     }
 
