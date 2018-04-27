@@ -9,28 +9,11 @@
 import Foundation
 import XcodeKit
 
-enum Command: String {
-    case assertOutlets
-    case cast, read, copy, nscoding, customInit
-}
-
-extension Command {
-    func isOneOf(_ args: Command...) -> Bool {
-        return args.contains(self)
-    }
-}
-
 class SourceEditorCommand: NSObject, XCSourceEditorCommand {
     private var zcode: SourceZcodeCommand?
     //    var edits = [EditOperation]()
 
     func perform(with invocation: XCSourceEditorCommandInvocation, completionHandler: @escaping (Error?) -> Void ) -> Void {
-        guard let command = Command(rawValue: invocation.commandIdentifier) else {
-            completionHandler(CommandError.unknown.error)
-            return
-        }
-
-
         if let message = SourceEditorExtension.updateMessage {
             let error = NSError(domain: "ZCode", code: 200, userInfo: [NSLocalizedDescriptionKey: message])
             completionHandler(error)
@@ -46,24 +29,28 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
 
 
         let options:CommandOptions
-        switch command {
-        case .assertOutlets:
+        switch invocation.commandIdentifier {
+        case "assertOutlets":
             options = .assert
 
-        case .cast:
+        case "cast":
             options = .cast
 
-        case .read:
+        case "read":
             options = .read
 
-        case .copy:
+        case "copy":
             options = .copying
 
-        case .nscoding:
+        case "nscoding":
             options = .coding
 
-        case .customInit:
+        case "customInit":
             options = .customInit
+
+        default:
+            completionHandler(CommandError.unknown.error)
+            return
         }
         zcode = SourceZcodeCommand(source: source, options: options)
         zcode?.perform()
