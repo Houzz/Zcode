@@ -86,16 +86,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     try self.process(file: doc, with: options)
                     NSDocumentController.shared.noteNewRecentDocumentURL(doc)
                     UserDefaults.standard.set(options.rawValue, forKey: doc.path)
-                } catch {}
+                } catch {
+                    let alert = NSAlert()
+                    alert.addButton(withTitle: "Ok")
+                    alert.messageText = "Error"
+                    alert.informativeText = error.localizedDescription
+                    alert.alertStyle = .critical
+                    _ = alert.runModal()
+                }
             }
         }
     }
 
     func process(file: URL, with options: CommandOptions) throws {
         guard let source = LinesSource(file: file, completion: {
-            guard $0 == nil else {
-                return
+            let alert = NSAlert()
+            alert.addButton(withTitle: "Ok")
+            if let error = $0 {
+                alert.alertStyle = .warning
+                alert.messageText = "Error"
+                alert.informativeText = error.localizedDescription
+            } else {
+                alert.messageText = "Done!"
+                alert.informativeText = "File \(file.lastPathComponent) Written"
+                alert.alertStyle = .informational
             }
+            _ = alert.runModal()
             return
         }) else {
             throw CommandError.unknown

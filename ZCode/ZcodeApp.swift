@@ -80,7 +80,6 @@ class LinesSource : ZcodeCommand {
         } else {
             do {
                 try source.joined(separator: "\n").write(to: fileURL, atomically: true, encoding: .utf8)
-                print("Wrote file")
                 completionHandler?(nil)
             } catch {
                 completionHandler?(NSError(domain: "Zcode", code: 300, userInfo: [NSLocalizedDescriptionKey: error.localizedDescription]))
