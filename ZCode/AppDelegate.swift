@@ -11,6 +11,7 @@ import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
+    var castPanel: NSStackView!
 
     override init() {
         Defaults.register()
@@ -23,36 +24,62 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to tear down your application
     }
 
+    @objc func changeCastVisibility(_ sender: NSButton) {
+        castPanel.alphaValue = sender.isOn ? 1 : 0
+    }
+
     @IBAction func open(_ sender: Any) {
         let openPanel = NSOpenPanel()
         openPanel.allowedFileTypes = ["swift"]
-        let stackView = NSStackView()
-        stackView.orientation = .vertical
-        stackView.alignment = .leading
-        stackView.edgeInsets = NSEdgeInsets(top: 10, left: 40, bottom: 10, right: 20)
+        castPanel = NSStackView()
+        castPanel.orientation = .vertical
+        castPanel.alignment = .leading
+        castPanel.edgeInsets = NSEdgeInsets(top: 10, left: 40, bottom: 10, right: 20)
         let read = NSButton(checkboxWithTitle: "Generate Cast.read", target: nil, action: nil)
-        stackView.addArrangedSubview(read)
+        castPanel.addArrangedSubview(read)
         let coding = NSButton(checkboxWithTitle: "Generate NSCoding", target: nil, action: nil)
-        stackView.addArrangedSubview(coding)
+        castPanel.addArrangedSubview(coding)
         let copy = NSButton(checkboxWithTitle: "Generate NSCopying", target: nil, action: nil)
-        stackView.addArrangedSubview(copy)
+        castPanel.addArrangedSubview(copy)
         let customInit = NSButton(checkboxWithTitle: "Generate init(vars...)", target: nil, action: nil)
-        stackView.addArrangedSubview(customInit)
+        castPanel.addArrangedSubview(customInit)
+
+        let leftView = NSStackView()
+        leftView.orientation = .vertical
+        leftView.alignment = .leading
+        leftView.edgeInsets = NSEdgeInsets(top: 10, left: 40, bottom: 10, right: 20)
+        let assert = NSButton(checkboxWithTitle: "Assert Outlets", target: nil, action: nil)
+        leftView.addArrangedSubview(assert)
+        let cast = NSButton(checkboxWithTitle: "Cast", target: self, action: #selector(changeCastVisibility(_:)))
+        leftView.addArrangedSubview(cast)
+
+        let stackView = NSStackView()
+        stackView.alignment = .top
+        stackView.addArrangedSubview(leftView)
+        stackView.addArrangedSubview(castPanel)
+        castPanel.alphaValue = 0
+
         openPanel.accessoryView = stackView
         openPanel.begin { (result) in
             if result == .OK, let doc = openPanel.urls.first {
-                var options = CommandOptions.cast
-                if read.state == .on {
-                    options.insert(.read)
-                }
-                if coding.state == .on {
-                    options.insert(.coding)
-                    if copy.state == .on {
-                        options.insert(.copying)
+                var options = CommandOptions.none
+                if cast.isOn {
+                    options.insert(.cast)
+                    if read.isOn {
+                        options.insert(.read)
+                    }
+                    if coding.isOn {
+                        options.insert(.coding)
+                        if copy.isOn {
+                            options.insert(.copying)
+                        }
+                    }
+                    if customInit.isOn {
+                        options.insert(.customInit)
                     }
                 }
-                if customInit.state == .on {
-                    options.insert(.customInit)
+                if assert.isOn {
+                    options.insert(.assert)
                 }
 
                 do {

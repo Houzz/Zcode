@@ -8,6 +8,17 @@
 
 import Cocoa
 
+extension NSButton {
+    var isOn: Bool {
+        get {
+            return state == .on
+        }
+        set {
+            state = newValue ? .on : .off
+        }
+    }
+}
+
 class ViewController: NSViewController {
     @IBOutlet var useLogger: NSButtonCell!
     @IBOutlet var nilStrings: NSButtonCell!
