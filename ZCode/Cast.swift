@@ -194,7 +194,7 @@ extension String: JSONValue, Castable {
         return i
     }
 
-    public func value(from obj: Any) -> String? {
+    public static func value(from obj: Any) -> String? {
         switch obj {
         case let obj as String:
             return obj

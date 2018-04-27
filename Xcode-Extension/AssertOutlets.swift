@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import XcodeKit
 
 extension String {
     func countInstances(of stringToFind: String) -> Int {
@@ -28,14 +27,9 @@ let endPattern = "// End outlet asserts"
 let awakePattern = "super.awakeFromNib()"
 let viewDidLoadPattern = "super.viewDidLoad()"
 
-extension SourceEditorCommand {
+extension SourceZcodeCommand {
     func assertOutlets() {
-        if source.contentUTI as CFString != kUTTypeSwiftSource  {
-            finish(error: CommandError.onlySwift)
-            return
-        }
-        let cursor = (source.selections[0] as! XCSourceTextRange).start.line
-
+        let cursor = source.cursorPosition.line
         var outlets = [String]()
         var beginAsserts: Int?
         var endAsserts: Int?

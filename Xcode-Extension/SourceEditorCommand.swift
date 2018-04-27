@@ -7,141 +7,59 @@
 //
 
 import Foundation
-import XcodeKit
 
-public enum CommandError: Int, Error {
-    case onlySwift
-    case unknown
-    case noVDLorAFN
-
-    var localizedDescription: String {
-        switch self {
-        case .onlySwift:
-            return "Only Swift files are supported"
-
-        case .unknown:
-            return "Unknwon Error"
-
-        case .noVDLorAFN:
-            return "Need super.viewDidLoad() for UIViewController subclass or super.awakeFromNib() for UIView subclass"
+class SourceZcodeCommand {
+    var source: ZcodeCommand
+    let options: CommandOptions
+    private var linePos: Int {
+        get {
+            return source.linePos
+        }
+        set {
+            source.linePos = newValue
         }
     }
 
-    var error: NSError {
-        return NSError(domain: "ZCode", code: rawValue + 100, userInfo: [NSLocalizedDescriptionKey: localizedDescription])
+    init(source: ZcodeCommand, options: CommandOptions) {
+        self.source = source
+        self.options = options
     }
-}
 
-enum Command: String {
-    case assertOutlets
-    case cast, read, copy, nscoding, customInit
-}
-
-extension Command {
-    func isOneOf(_ args: Command...) -> Bool {
-        return args.contains(self)
-    }
-}
-
-class SourceEditorCommand: NSObject, XCSourceEditorCommand {
-    var source: XCSourceTextBuffer!
-
-    private var completionHandler: ((Error?) -> Void)?
-//    var edits = [EditOperation]()
-    private var linePos: Int = 0
-
-    func perform(with invocation: XCSourceEditorCommandInvocation, completionHandler: @escaping (Error?) -> Void ) -> Void {
-        guard let command = Command(rawValue: invocation.commandIdentifier) else {
-            completionHandler(CommandError.unknown.error)
-            return
-        }
-
-        source = invocation.buffer
-        self.completionHandler = completionHandler
-
-        if let message = SourceEditorExtension.updateMessage {
-            finish(updateMessage: message)
-            return
-        }
-
-        switch command {
-        case .assertOutlets:
+    func perform() {
+        if options.contains(.assert) {
             assertOutlets()
-
-        case .cast, .read, .copy, .nscoding, .customInit:
-            cast(command: command)
+        } else if !options.isDisjoint(with: [.cast, .read, .copying, .coding, .customInit]) {
+            cast(command: options)
         }
     }
 
     func finish(error: CommandError? = nil) {
-        source = nil
-        completionHandler?(error?.error)
-        completionHandler = nil
-    }
-
-    func finish(updateMessage: String) {
-        source = nil
-        let error = NSError(domain: "ZCode", code: 200, userInfo: [NSLocalizedDescriptionKey: updateMessage])
-        completionHandler?(error)
-        completionHandler = nil
+        source.finish(error: error)
     }
 
     func selectLines(from: Int, count: Int) {
-        let start = XCSourceTextPosition(line: from, column: 0)
-        let end = XCSourceTextPosition(line: from + count, column: 0)
-        let sel = XCSourceTextRange(start: start, end: end)
-        source.selections.add(sel)
+        source.selectLines(from: from, count: count)
     }
 
     func moveCursor(toLine line: Int, column: Int) {
-        let pos = XCSourceTextPosition(line: line, column: column)
-        source.selections[0] = XCSourceTextRange(start: pos, end: pos)
+        source.moveCursor(toLine: line, column: column)
     }
 
-    var cursorPosition: XCSourceTextPosition {
-        return (source.selections[0] as! XCSourceTextRange).start
+    var cursorPosition: SourcePosition {
+        return source.cursorPosition
     }
 
     func deleteLines(from: Int, to: Int) {
-        for i in (from ..< to).reversed() {
-            source.lines.removeObject(at: i)
-            if linePos + 1 >= i {
-                linePos -= i
-            }
-        }
+        source.deleteLines(from: from, to: to)
     }
 
     func insert(_ newlines: [String], at idx: Int, select: Bool = true) {
-        var insertion = idx
-        for line in newlines {
-            source.lines.insert(line, at: insertion)
-            insertion += 1
-            if linePos + 1 >= insertion {
-                linePos += 1
-            }
-        }
-        if select {
-            selectLines(from: idx, count: newlines.count)
-        }
+        source.insert(newlines, at: idx, select: select)
     }
 
     func indentationString(level: Int) -> String {
-        var cache = [Int:String]()
-        if let s = cache[level] {
-            return s
-        }
-        var prefix = String(repeating: " ", count: level * source.indentationWidth)
-        if source.usesTabsForIndentation {
-            let replaceWithTab = String(repeating: " ", count: source.tabWidth)
-            while prefix.contains(replaceWithTab) {
-                prefix = prefix.replacingOccurrences(of: replaceWithTab, with: "\t")
-            }
-        }
-        cache[level] = prefix
-        return prefix
+        return source.indentationString(level:level)
     }
-
-
 
     func enumerateLines(withBlock handler: (_ lineIndex: Int, _ line: String, _ braceLevel: Int, _ previousBraceLevel: Int, _ stop: inout Bool) -> Void) {
         var braceLevel = 0
@@ -155,11 +73,11 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
             case ccomment
         }
         var state = State.code
-        while linePos < source.lines.count {
+        while linePos < source.lineCount {
             defer {
                 linePos += 1
             }
-            let line = source.lines[linePos] as! String
+            let line = source.line(linePos)
             if line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty  {
                 continue
             }

@@ -20,6 +20,17 @@
 		E414C5251FADF1920083C242 /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5241FADF1920083C242 /* Regex.swift */; };
 		E414C5271FADF1CE0083C242 /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5261FADF1CE0083C242 /* StringAdditions.swift */; };
 		E414C5291FADF2580083C242 /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5281FADF2580083C242 /* Scan.swift */; };
+		E43565362092F7730019367A /* CastCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E401E8101FB35793004DBFA4 /* CastCommand.swift */; };
+		E43565372092F77A0019367A /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5241FADF1920083C242 /* Regex.swift */; };
+		E43565382092F7800019367A /* StringAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5261FADF1CE0083C242 /* StringAdditions.swift */; };
+		E43565392092F7860019367A /* Scan.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5281FADF2580083C242 /* Scan.swift */; };
+		E435653A2092F7B80019367A /* Cast.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B537A5208C9E61003E89E6 /* Cast.swift */; };
+		E435653C2092FEB00019367A /* ZcodeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E435653B2092FEB00019367A /* ZcodeCommand.swift */; };
+		E435653D2092FEB00019367A /* ZcodeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E435653B2092FEB00019367A /* ZcodeCommand.swift */; };
+		E435654120934D0C0019367A /* ZcodeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E435654020934D0C0019367A /* ZcodeExtension.swift */; };
+		E435654320934FBF0019367A /* ZcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E435654220934FBF0019367A /* ZcodeApp.swift */; };
+		E4356544209350B50019367A /* SourceEditorCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5111FADE24E0083C242 /* SourceEditorCommand.swift */; };
+		E4356545209351BB0019367A /* AssertOutlets.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C51C1FADEF260083C242 /* AssertOutlets.swift */; };
 		E44591271FB234E500ED1935 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44591261FB234E500ED1935 /* Defaults.swift */; };
 		E44591281FB234E500ED1935 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44591261FB234E500ED1935 /* Defaults.swift */; };
 		E46F10AB208CB97A002A2CA1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E46F10AA208CB97A002A2CA1 /* Config.xcconfig */; };
@@ -72,6 +83,10 @@
 		E414C5241FADF1920083C242 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
 		E414C5261FADF1CE0083C242 /* StringAdditions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringAdditions.swift; sourceTree = "<group>"; };
 		E414C5281FADF2580083C242 /* Scan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scan.swift; sourceTree = "<group>"; };
+		E435653B2092FEB00019367A /* ZcodeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZcodeCommand.swift; sourceTree = "<group>"; };
+		E435653E209302980019367A /* XcodeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XcodeKit.framework; path = Library/Frameworks/XcodeKit.framework; sourceTree = DEVELOPER_DIR; };
+		E435654020934D0C0019367A /* ZcodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZcodeExtension.swift; sourceTree = "<group>"; };
+		E435654220934FBF0019367A /* ZcodeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZcodeApp.swift; sourceTree = "<group>"; };
 		E44591261FB234E500ED1935 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		E46F10AA208CB97A002A2CA1 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		E46F10AD208CBC95002A2CA1 /* Repeater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repeater.swift; sourceTree = "<group>"; };
@@ -126,6 +141,7 @@
 				E44591261FB234E500ED1935 /* Defaults.swift */,
 				E414C4F81FADE1F20083C242 /* ViewController.swift */,
 				E414C4FA1FADE1F20083C242 /* Assets.xcassets */,
+				E435654220934FBF0019367A /* ZcodeApp.swift */,
 				E414C4FC1FADE1F20083C242 /* Main.storyboard */,
 				E414C4FF1FADE1F20083C242 /* Info.plist */,
 				E414C5001FADE1F20083C242 /* ZCode.entitlements */,
@@ -136,6 +152,7 @@
 		E414C50B1FADE24E0083C242 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E435653E209302980019367A /* XcodeKit.framework */,
 				E414C50C1FADE24E0083C242 /* Cocoa.framework */,
 			);
 			name = Frameworks;
@@ -147,6 +164,8 @@
 				E414C50F1FADE24E0083C242 /* SourceEditorExtension.swift */,
 				E46F10AD208CBC95002A2CA1 /* Repeater.swift */,
 				E414C5111FADE24E0083C242 /* SourceEditorCommand.swift */,
+				E435653B2092FEB00019367A /* ZcodeCommand.swift */,
+				E435654020934D0C0019367A /* ZcodeExtension.swift */,
 				E401E8101FB35793004DBFA4 /* CastCommand.swift */,
 				E414C51C1FADEF260083C242 /* AssertOutlets.swift */,
 				E414C5241FADF1920083C242 /* Regex.swift */,
@@ -215,6 +234,9 @@
 							com.apple.ApplicationGroups.Mac = {
 								enabled = 1;
 							};
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
 						};
 					};
 					E414C5091FADE24D0083C242 = {
@@ -276,9 +298,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E43565382092F7800019367A /* StringAdditions.swift in Sources */,
+				E435653A2092F7B80019367A /* Cast.swift in Sources */,
 				E44591271FB234E500ED1935 /* Defaults.swift in Sources */,
+				E435653C2092FEB00019367A /* ZcodeCommand.swift in Sources */,
+				E4356545209351BB0019367A /* AssertOutlets.swift in Sources */,
+				E43565392092F7860019367A /* Scan.swift in Sources */,
+				E4356544209350B50019367A /* SourceEditorCommand.swift in Sources */,
 				E414C4F91FADE1F20083C242 /* ViewController.swift in Sources */,
 				E414C4F71FADE1F20083C242 /* AppDelegate.swift in Sources */,
+				E43565362092F7730019367A /* CastCommand.swift in Sources */,
+				E43565372092F77A0019367A /* Regex.swift in Sources */,
+				E435654320934FBF0019367A /* ZcodeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,12 +320,14 @@
 				E414C5101FADE24E0083C242 /* SourceEditorExtension.swift in Sources */,
 				E4B537A8208CA0AC003E89E6 /* Release.swift in Sources */,
 				E4B537A6208C9E61003E89E6 /* Cast.swift in Sources */,
+				E435654120934D0C0019367A /* ZcodeExtension.swift in Sources */,
 				E44591281FB234E500ED1935 /* Defaults.swift in Sources */,
 				E46F10AE208CBC95002A2CA1 /* Repeater.swift in Sources */,
 				E414C5271FADF1CE0083C242 /* StringAdditions.swift in Sources */,
 				E414C5291FADF2580083C242 /* Scan.swift in Sources */,
 				E414C5251FADF1920083C242 /* Regex.swift in Sources */,
 				E401E8111FB35793004DBFA4 /* CastCommand.swift in Sources */,
+				E435653D2092FEB00019367A /* ZcodeCommand.swift in Sources */,
 				E414C51D1FADEF260083C242 /* AssertOutlets.swift in Sources */,
 				E414C5121FADE24E0083C242 /* SourceEditorCommand.swift in Sources */,
 			);

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 let startReadCustomPattern = "// Add custom code after this comment"
 
 extension String {
@@ -100,7 +99,7 @@ struct VarInfo {
         }
     }
 
-    func decodeCall(editor: SourceEditorCommand) -> [String] {
+    func decodeCall(editor: SourceZcodeCommand) -> [String] {
         var v = [String]()
         v.append("\(editor.indentationString(level: 2))if let v = \(type).decode(with: aDecoder, fromKey:\"\(name)\") {")
         v.append("\(editor.indentationString(level: 3))\(name) = v")
@@ -123,7 +122,7 @@ struct VarInfo {
         return v
     }
 
-    func generateRead(nilMissing doNil: Bool, className: String, disableHouzzzLogging:Bool, editor: SourceEditorCommand) -> [String] {
+    func generateRead(nilMissing doNil: Bool, className: String, disableHouzzzLogging:Bool, editor: SourceZcodeCommand) -> [String] {
         guard skip == false else {
             return []
         }
@@ -197,10 +196,10 @@ private class FunctionInfo {
     var inside: Bool = false
     var inBlock: Bool = false
     var custom: [String]? = nil
-    let create: (Int, ParseInfo, [String]?, SourceEditorCommand) -> Int
-    fileprivate let condition: (Command, ParseInfo) -> Bool
+    let create: (Int, ParseInfo, [String]?, SourceZcodeCommand) -> Int
+    fileprivate let condition: (CommandOptions, ParseInfo) -> Bool
 
-    init(expression: String, condition: @escaping (Command, ParseInfo) -> Bool, create: @escaping (Int, ParseInfo, [String]?, SourceEditorCommand) -> Int) {
+    init(expression: String, condition: @escaping (CommandOptions, ParseInfo) -> Bool, create: @escaping (Int, ParseInfo, [String]?, SourceZcodeCommand) -> Int) {
         self.expression = expression
         self.condition = condition
         self.create = create
@@ -219,7 +218,7 @@ private class ParseInfo {
     var superTag: String? = nil
     var variables = [VarInfo]()
 
-    func createInitWithDict(lineIndex: Int, editor: SourceEditorCommand) -> Int {
+    func createInitWithDict(lineIndex: Int, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -266,7 +265,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createRead(lineIndex: Int, customLines:[String]?, editor: SourceEditorCommand) -> Int {
+    func createRead(lineIndex: Int, customLines:[String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -304,7 +303,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
+    func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -366,7 +365,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
+    func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         let codingOverride = !classInheritence!.contains("NSCoding")
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public" : classAccess
@@ -389,7 +388,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
+    func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         let codingOverride = !classInheritence!.contains("NSCoding")
         let codingOverrideString = codingOverride ? "override" : ""
@@ -411,7 +410,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
+    func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         output.append("\(editor.indentationString(level: 1))\(classAccess) func copy(with zone: NSZone? = nil) -> Any { // Generated")
         output.append("\(editor.indentationString(level: 2))let aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
@@ -426,7 +425,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceEditorCommand) -> Int {
+    func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public" : classAccess
         let params = variables.compactMap { return $0.getInitParam() }.joined(separator: ", ")
@@ -447,14 +446,9 @@ private class ParseInfo {
 }
 
 
-extension SourceEditorCommand {
+extension SourceZcodeCommand {
 
-    func cast(command: Command) {
-        if source.contentUTI as CFString != kUTTypeSwiftSource  {
-            finish(error: CommandError.onlySwift)
-            return
-        }
-        
+    func cast(command: CommandOptions) {
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
         let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *\\{* *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?")
         let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *custom")
@@ -473,37 +467,37 @@ extension SourceEditorCommand {
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
-            (info.classInheritence!.contains("NSCopying") && command == .cast) || command == .copy
+            (info.classInheritence!.contains("NSCopying") && (command.contains(.cast)) || command.contains(.copying))
         }, create: { (line, info, custom, editor) -> Int in
             info.createCopy(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.encode] = FunctionInfo(expression: "func encode(with aCoder: NSCoder) { // Generated", condition: { (command, info) in
-            (info.classInheritence!.contains("NSCoding") && command == .cast) || command.isOneOf(.copy, .nscoding)
+            (info.classInheritence!.contains("NSCoding") && (command.contains(.cast) || command.contains(.copying) || command.contains(.coding)))
         }, create: { (line, info, custom, editor) in
             info.createEncodeWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.initWithCoder] = FunctionInfo(expression: "init?(coder aDecoder: NSCoder) { // Generated", condition: { (command, info) in
-            (info.classInheritence!.contains("NSCoding") && command == .cast) || command.isOneOf(.copy, .nscoding)
+            (info.classInheritence!.contains("NSCoding") && (command.contains(.cast) || command.contains(.copying) || command.contains(.coding)))
         }, create: { (line, info, custom, editor) in
             info.createInitWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.dictionaryRepresentation] = FunctionInfo(expression: "func dictionaryRepresentation() -> [String: Any] { // Generated", condition: { (command, info) in
-            command == .cast
+            command.contains(.cast)
         }, create: { (line, info, custom, editor) in
             info.createDictionaryRepresentation(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.read] = FunctionInfo(expression: "func read(from dict: JSONDictionary) { // Generated", condition: { (command, info) in
-            command == .read
+            command.contains(.read)
         }, create: { (line, info, custom, editor) in
             info.createRead(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.initDictionary] = FunctionInfo(expression: "init?(dictionary dict: JSONDictionary) { // Generated", condition: { (command, info) in
-            command == .cast
+            command.contains(.cast)
         }, create: { (line, info, _, editor) in
             info.createInitWithDict(lineIndex: line, editor: editor)
         })
         functions[.customInit] = FunctionInfo(expression: "// Generated Init", condition: { (command, _) -> Bool in
-            command == .customInit
+            command.contains(.customInit)
         }, create: { (line, info, custom, editor) in
             info.createCustomInit(lineIndex: line, customLines: custom, editor: editor)
         })
@@ -534,7 +528,7 @@ extension SourceEditorCommand {
             if let info = parseInfo {
                 if braceLevel == 0 {
                     if priorBraceLevel == 1 {
-                        if lineIndex >= cursorPosition.line && cursorPosition.line >= startClassLine {
+                        if cursorPosition.isZero || (lineIndex >= cursorPosition.line && cursorPosition.line >= startClassLine) {
                             for (key, value) in functions {
                                 if let start = value.start, let end = value.end {
                                     deleteLines(from: start, to: end + 1)
@@ -550,16 +544,11 @@ extension SourceEditorCommand {
                                 functions[key]?.end = nil
                                 functions[key]?.custom = nil
                             }
-                            parseInfo = nil
-                            stop = true
-                        } else {
-                            for (key, _) in functions {
-                                functions[key]?.start = nil
-                                functions[key]?.end = nil
-                                functions[key]?.custom = nil
+                            if !cursorPosition.isZero {
+                                stop = true
                             }
-                            parseInfo = nil
                         }
+                            parseInfo = nil
                     }
                 } else if priorBraceLevel == 2 && braceLevel == 1 {
                         for (_,info) in functions {
