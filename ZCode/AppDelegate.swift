@@ -52,6 +52,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         leftView.addArrangedSubview(assert)
         let cast = NSButton(checkboxWithTitle: "Cast", target: self, action: #selector(changeCastVisibility(_:)))
         leftView.addArrangedSubview(cast)
+        let defaults = NSButton(checkboxWithTitle: "Defaults", target: nil, action: nil)
+        leftView.addArrangedSubview(defaults)
 
         let stackView = NSStackView()
         stackView.alignment = .top
@@ -60,6 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         castPanel.alphaValue = 0
 
         openPanel.accessoryView = stackView
+        openPanel.isAccessoryViewDisclosed = true
         openPanel.begin { (result) in
             if result == .OK, let doc = openPanel.urls.first {
                 var options = CommandOptions.none
@@ -80,6 +83,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 if assert.isOn {
                     options.insert(.assert)
+                }
+                if defaults.isOn {
+                    options.insert(.defaults)
                 }
 
                 do {

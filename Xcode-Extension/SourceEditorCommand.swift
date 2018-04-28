@@ -28,8 +28,12 @@ class SourceZcodeCommand {
     func perform() {
         if options.contains(.assert) {
             assertOutlets()
-        } else if !options.isDisjoint(with: [.cast, .read, .copying, .coding, .customInit]) {
+        }
+        if !options.isDisjoint(with: [.cast, .read, .copying, .coding, .customInit]) {
             cast(command: options)
+        }
+        if options.contains(.defaults) {
+            makeDefaults()
         }
     }
 

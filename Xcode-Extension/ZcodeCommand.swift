@@ -31,6 +31,7 @@ struct CommandOptions: OptionSet {
     public static let read = CommandOptions(rawValue: 1 << 3)
     public static let assert = CommandOptions(rawValue: 1 << 4)
     public static let cast = CommandOptions(rawValue: 1 << 5)
+    public static let defaults = CommandOptions(rawValue: 1 << 6)
 }
 
 
@@ -38,6 +39,7 @@ public enum CommandError: Int, Error {
     case onlySwift
     case unknown
     case noVDLorAFN
+    case noDefaultsClass
 
     var localizedDescription: String {
         switch self {
@@ -49,6 +51,9 @@ public enum CommandError: Int, Error {
 
         case .noVDLorAFN:
             return "Need super.viewDidLoad() for UIViewController subclass or super.awakeFromNib() for UIView subclass"
+
+        case .noDefaultsClass:
+            return "Didn't find any class inherting from UserDefaults"
         }
     }
 

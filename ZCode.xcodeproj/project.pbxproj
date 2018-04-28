@@ -31,6 +31,8 @@
 		E435654320934FBF0019367A /* ZcodeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E435654220934FBF0019367A /* ZcodeApp.swift */; };
 		E4356544209350B50019367A /* SourceEditorCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C5111FADE24E0083C242 /* SourceEditorCommand.swift */; };
 		E4356545209351BB0019367A /* AssertOutlets.swift in Sources */ = {isa = PBXBuildFile; fileRef = E414C51C1FADEF260083C242 /* AssertOutlets.swift */; };
+		E4356552209460AB0019367A /* DefaultsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4356551209460AB0019367A /* DefaultsCommand.swift */; };
+		E4356553209460AB0019367A /* DefaultsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4356551209460AB0019367A /* DefaultsCommand.swift */; };
 		E44591271FB234E500ED1935 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44591261FB234E500ED1935 /* Defaults.swift */; };
 		E44591281FB234E500ED1935 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44591261FB234E500ED1935 /* Defaults.swift */; };
 		E46F10AB208CB97A002A2CA1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E46F10AA208CB97A002A2CA1 /* Config.xcconfig */; };
@@ -87,6 +89,7 @@
 		E435653E209302980019367A /* XcodeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XcodeKit.framework; path = Library/Frameworks/XcodeKit.framework; sourceTree = DEVELOPER_DIR; };
 		E435654020934D0C0019367A /* ZcodeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZcodeExtension.swift; sourceTree = "<group>"; };
 		E435654220934FBF0019367A /* ZcodeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZcodeApp.swift; sourceTree = "<group>"; };
+		E4356551209460AB0019367A /* DefaultsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsCommand.swift; sourceTree = "<group>"; };
 		E44591261FB234E500ED1935 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		E46F10AA208CB97A002A2CA1 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		E46F10AD208CBC95002A2CA1 /* Repeater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repeater.swift; sourceTree = "<group>"; };
@@ -174,6 +177,7 @@
 				E414C5131FADE24E0083C242 /* Info.plist */,
 				E414C5141FADE24E0083C242 /* AssertOutlets.entitlements */,
 				E4B537A7208CA0AC003E89E6 /* Release.swift */,
+				E4356551209460AB0019367A /* DefaultsCommand.swift */,
 			);
 			path = "Xcode-Extension";
 			sourceTree = "<group>";
@@ -298,6 +302,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4356552209460AB0019367A /* DefaultsCommand.swift in Sources */,
 				E43565382092F7800019367A /* StringAdditions.swift in Sources */,
 				E435653A2092F7B80019367A /* Cast.swift in Sources */,
 				E44591271FB234E500ED1935 /* Defaults.swift in Sources */,
@@ -330,6 +335,7 @@
 				E435653D2092FEB00019367A /* ZcodeCommand.swift in Sources */,
 				E414C51D1FADEF260083C242 /* AssertOutlets.swift in Sources */,
 				E414C5121FADE24E0083C242 /* SourceEditorCommand.swift in Sources */,
+				E4356553209460AB0019367A /* DefaultsCommand.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

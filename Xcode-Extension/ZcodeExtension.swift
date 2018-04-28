@@ -48,6 +48,9 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         case "customInit":
             options = .customInit
 
+        case "default":
+            options = .defaults
+
         default:
             completionHandler(CommandError.unknown.error)
             return
