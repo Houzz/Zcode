@@ -23,7 +23,7 @@ class SourceEditorExtension: NSObject, XCSourceEditorExtension {
         Defaults.register()
         checkForUpdate()
         if SourceEditorExtension.updateMessage == nil {
-            SourceEditorExtension.repeater = Repeater.every(3.days, perform: { (sender) in
+            SourceEditorExtension.repeater = Repeater.every(1.days, perform: { (sender) in
                 self.checkForUpdate()
                 if SourceEditorExtension.updateMessage != nil {
                     sender.cancel()
