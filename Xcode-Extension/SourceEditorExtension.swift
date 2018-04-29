@@ -33,7 +33,7 @@ class SourceEditorExtension: NSObject, XCSourceEditorExtension {
     }
 
     func checkForUpdate() {
-        guard let url = URL(string: "https://api.github.com/repos/houzz/zcode/releases") else {
+        guard let url = URL(string: "https://api.github.com/repos/houzz/zcode/releases"), SourceEditorExtension.updateMessage == nil else {
             return
         }
         guard let data = try? Data(contentsOf: url),
