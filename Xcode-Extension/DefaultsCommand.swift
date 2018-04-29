@@ -151,7 +151,7 @@ extension DefaultKey {
             return "integer(forKey: \"\(prefKey)\")"
 
         case .url:
-            return "URL(string: object(forKey: \"\(prefKey)\") as? String ?? \"\")\(isOptional ? "?" : "!")"
+            return "URL(string: object(forKey: \"\(prefKey)\") as? String ?? \"\")\(isOptional ? "" : "!")"
 
         default:
             return "object(forKey: \"\(prefKey)\")"
