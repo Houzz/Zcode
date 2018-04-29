@@ -82,7 +82,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>default</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>/make Defaults</string>
+					<string>Make Defaults</string>
 				</dict>
 			</array>
 			<key>XCSourceEditorExtensionPrincipalClass</key>
