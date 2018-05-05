@@ -453,7 +453,7 @@ extension SourceZcodeCommand {
         let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *\\{* *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?")
         let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *custom")
         let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *\\{* *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?")
-        let customDictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *//! *custom")
+        let customDictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]?) *//! *(?:= *(nil))? *custom")
         let skipVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *ignore json")
         let ignoreRegex = Regex("(.*)//! *ignore", options: [.caseInsensitive])
         let accessRegex = Regex("(public|private|internal|open)")
@@ -568,7 +568,7 @@ extension SourceZcodeCommand {
                     } else if let matches: [String?] = skipVarRegex.matchGroups(line) {
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: true, key: nil, useCustom: false, skip: true, className: info.className!))
                     } else if let matches: [String?] = customDictRegex.matchGroups(line) {
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: nil, asIsKey: false, key: nil, useCustom: true, className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
                     } else if let matches: [String?] = dictRegex.matchGroups(line) {
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
                    } else if let matches: [String?] = customVarRegex.matchGroups(line) {
