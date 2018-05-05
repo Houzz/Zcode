@@ -38,6 +38,7 @@
 		E46F10AB208CB97A002A2CA1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E46F10AA208CB97A002A2CA1 /* Config.xcconfig */; };
 		E46F10AC208CB97A002A2CA1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E46F10AA208CB97A002A2CA1 /* Config.xcconfig */; };
 		E46F10AE208CBC95002A2CA1 /* Repeater.swift in Sources */ = {isa = PBXBuildFile; fileRef = E46F10AD208CBC95002A2CA1 /* Repeater.swift */; };
+		E4A1705D209DF9A500CB06B3 /* Release.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B537A7208CA0AC003E89E6 /* Release.swift */; };
 		E4B537A6208C9E61003E89E6 /* Cast.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B537A5208C9E61003E89E6 /* Cast.swift */; };
 		E4B537A8208CA0AC003E89E6 /* Release.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B537A7208CA0AC003E89E6 /* Release.swift */; };
 /* End PBXBuildFile section */
@@ -315,6 +316,7 @@
 				E43565362092F7730019367A /* CastCommand.swift in Sources */,
 				E43565372092F77A0019367A /* Regex.swift in Sources */,
 				E435654320934FBF0019367A /* ZcodeApp.swift in Sources */,
+				E4A1705D209DF9A500CB06B3 /* Release.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

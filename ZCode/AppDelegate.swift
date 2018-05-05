@@ -18,6 +18,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        DispatchQueue.global().async {
+            self.appUpdate()
+        }
+    }
+
+    @discardableResult private func appUpdate() -> Bool {
+        if let latest = checkForUpdate() {
+            DispatchQueue.main.async {
+                let alert = NSAlert()
+                alert.addButton(withTitle: "Update")
+                alert.messageText = "Version \(latest.version.display) Available"
+                let currentVerionString = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "?"
+                alert.informativeText = "You have version \(currentVerionString). Please update"
+                alert.alertStyle = .informational
+                alert.addButton(withTitle: "Cancel")
+                if alert.runModal() == .alertFirstButtonReturn, let link = URL(string: latest.htmlUrl) {
+                    NSWorkspace.shared.open(link)
+                }
+            }
+            return true
+        }
+        return false
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -29,6 +51,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction func open(_ sender: Any) {
+        if appUpdate() {
+            return
+        }
         let openPanel = NSOpenPanel()
         openPanel.allowedFileTypes = ["swift"]
         castPanel = NSStackView()

@@ -10,6 +10,27 @@
 
 import Foundation
 
+private var lastCheck:TimeInterval = 0
+func checkForUpdate() -> Release? {
+    guard let url = URL(string: "https://api.github.com/repos/houzz/zcode/releases"), CFAbsoluteTimeGetCurrent() - lastCheck > 3600 else {
+        return nil
+    }
+    lastCheck = CFAbsoluteTimeGetCurrent()
+    guard let data = try? Data(contentsOf: url),
+        let root = try? JSONSerialization.jsonObject(with: data, options: []) as? [JSONDictionary],
+        let latestInfo = root?.first,
+        let latest = Release(dictionary: latestInfo),
+        let currentVerionString = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)
+        else {
+            return nil
+    }
+    let current = Version(currentVerionString)
+    if latest.version > current {
+        return latest
+    }
+    return nil
+}
+
 struct Release: DictionaryConvertible {
     let htmlUrl: String
     let tagName: String

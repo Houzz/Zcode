@@ -21,32 +21,15 @@ class SourceEditorExtension: NSObject, XCSourceEditorExtension {
 
     func extensionDidFinishLaunching() {
         Defaults.register()
-        checkForUpdate()
-        if SourceEditorExtension.updateMessage == nil {
+        if let latest = checkForUpdate() {
+            SourceEditorExtension.updateMessage = "Please update to version \(latest.version.display) from https://github.com/houzz/zcode/releases"
+        } else {
             SourceEditorExtension.repeater = Repeater.every(1.days, perform: { (sender) in
-                self.checkForUpdate()
-                if SourceEditorExtension.updateMessage != nil {
+                if let latest = checkForUpdate() {
                     sender.cancel()
+                    SourceEditorExtension.updateMessage = "Please update to version \(latest.version.display) from https://github.com/houzz/zcode/releases"
                 }
             })
-        }
-    }
-
-    func checkForUpdate() {
-        guard let url = URL(string: "https://api.github.com/repos/houzz/zcode/releases"), SourceEditorExtension.updateMessage == nil else {
-            return
-        }
-        guard let data = try? Data(contentsOf: url),
-            let root = try? JSONSerialization.jsonObject(with: data, options: []) as? [JSONDictionary],
-            let latestInfo = root?.first,
-            let latest = Release(dictionary: latestInfo),
-            let currentVerionString = (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)
-            else {
-                return
-        }
-        let current = Version(currentVerionString)
-        if latest.version > current {
-            SourceEditorExtension.updateMessage =  "Please update to version \(latest.version.display) from https://github.com/houzz/zcode/releases"
         }
     }
 }
