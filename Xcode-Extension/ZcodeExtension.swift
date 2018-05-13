@@ -110,7 +110,7 @@ class XcodeSource : ZcodeCommand {
     func deleteLines(from: Int, to: Int) {
         for i in (from ..< to).reversed() {
             source.lines.removeObject(at: i)
-            if linePos + 1 >= i {
+            if linePos > i {
                 linePos -= 1
             }
         }
@@ -120,10 +120,10 @@ class XcodeSource : ZcodeCommand {
         var insertion = idx
         for line in newlines {
             source.lines.insert(line, at: insertion)
-            insertion += 1
-            if linePos + 1 >= insertion {
+            if linePos >= insertion {
                 linePos += 1
             }
+            insertion += 1
         }
         if select {
             selectLines(from: idx, count: newlines.count)

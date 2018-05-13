@@ -229,10 +229,18 @@ private class ParseInfo {
         }
 
         // init
-        let reqStr = isStruct ? "" : "required"
-        let initAccess =  classAccess == "open" ? "public" : classAccess
+        var l = [editor.indentationString(level: 1)]
+        if !isStruct {
+            l.append("required")
+        }
+        if classAccess == "open" {
+            l.append("public")
+        } else if !classAccess.isEmpty {
+            l.append(classAccess)
+        }
+        l.append("init?(dictionary dict: JSONDictionary) { // Generated")
 
-        output.append("\(editor.indentationString(level: 1))\(reqStr) \(initAccess) init?(dictionary dict: JSONDictionary) { // Generated")
+        output.append(l.joined(separator: " "))
 
         for variable in variables {
             if variable.skip {
@@ -272,9 +280,9 @@ private class ParseInfo {
             classInheritence = [String]()
         }
         if !classInheritence!.contains("DictionaryConvertible") && !isStruct {
-            override = "override"
+            override = "override "
         }
-        output.append("\(editor.indentationString(level: 1))\(override) \(classAccess) func read(from dict: JSONDictionary) { // Generated")
+        output.append("\(editor.indentationString(level: 1))\(override)\(classAccess.isEmpty ? "" : "\(classAccess) ")func read(from dict: JSONDictionary) { // Generated")
 
         for variable in variables {
             if !variable.isLet {
@@ -310,9 +318,9 @@ private class ParseInfo {
             classInheritence = [String]()
         }
         if !classInheritence!.contains("DictionaryConvertible") && !isStruct {
-            override = "override"
+            override = "override "
         }
-        output.append("\(editor.indentationString(level: 1))\(isObjc ? "@objc" : "") \(override) \(classAccess) func dictionaryRepresentation() -> [String: Any] { // Generated")
+        output.append("\(editor.indentationString(level: 1))\(isObjc ? "@objc " : "")\(override)\(classAccess.isEmpty ? "" : "\(classAccess) ")func dictionaryRepresentation() -> [String: Any] { // Generated")
         if override.isEmpty {
             output.append("\(editor.indentationString(level: 2))var dict = [String: Any]()")
         } else {
@@ -368,9 +376,9 @@ private class ParseInfo {
     func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         let codingOverride = !classInheritence!.contains("NSCoding")
         var output = [String]()
-        let initAccess =  classAccess == "open" ? "public" : classAccess
+        let initAccess =  classAccess == "open" ? "public " : "\(classAccess) "
 
-        output.append("\(editor.indentationString(level: 1))required \(initAccess) init?(coder aDecoder: NSCoder) { // Generated")
+        output.append("\(editor.indentationString(level: 1))required \(initAccess)init?(coder aDecoder: NSCoder) { // Generated")
 
         for variable in variables {
             output += variable.decodeCall(editor: editor)
@@ -391,8 +399,8 @@ private class ParseInfo {
     func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         let codingOverride = !classInheritence!.contains("NSCoding")
-        let codingOverrideString = codingOverride ? "override" : ""
-        output.append("\(editor.indentationString(level: 1))\(classAccess) \(codingOverrideString) func encode(with aCoder: NSCoder) { // Generated")
+        let codingOverrideString = codingOverride ? "override " : ""
+        output.append("\(editor.indentationString(level: 1))\(classAccess.isEmpty ? "" : "\(classAccess) ")\(codingOverrideString)func encode(with aCoder: NSCoder) { // Generated")
         if codingOverride {
             output.append("\(editor.indentationString(level: 2))super.encode(with: aCoder)")
         }
@@ -412,7 +420,7 @@ private class ParseInfo {
 
     func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
-        output.append("\(editor.indentationString(level: 1))\(classAccess) func copy(with zone: NSZone? = nil) -> Any { // Generated")
+        output.append("\(editor.indentationString(level: 1))\(classAccess.isEmpty ? "" : "\(classAccess) ")func copy(with zone: NSZone? = nil) -> Any { // Generated")
         output.append("\(editor.indentationString(level: 2))let aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
@@ -427,9 +435,9 @@ private class ParseInfo {
 
     func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
-        let initAccess =  classAccess == "open" ? "public" : classAccess
+        let initAccess =  classAccess == "open" ? "public " : (classAccess.isEmpty ? "" : "\(classAccess) ")
         let params = variables.compactMap { return $0.getInitParam() }.joined(separator: ", ")
-        output.append("\(editor.indentationString(level: 1))\(initAccess) init(\(params)) { // Generated Init")
+        output.append("\(editor.indentationString(level: 1))\(initAccess)init(\(params)) { // Generated Init")
         for variable in variables {
             if variable.skip == false {
                 output.append("\(editor.indentationString(level: 2))\(variable.getInitAssign())")
