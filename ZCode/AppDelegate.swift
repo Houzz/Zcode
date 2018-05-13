@@ -7,19 +7,45 @@
 //
 
 import Cocoa
+import GitHubUpdates
 
+private func isXcodeRunning() -> Bool {
+    return NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier }.contains("com.apple.dt.Xcode")
+}
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, GitHubUpdaterDelegate {
     var castPanel: NSStackView!
+    let updater = GitHubUpdater()
 
     override init() {
         Defaults.register()
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        DispatchQueue.global().async {
-            self.appUpdate()
+        updater.user = "houzz"
+        updater.repository = "zcode"
+        updater.delegate = self
+        updater.checkForUpdatesInBackground()
+    }
+
+    func interceptInstallCompletion(_ done: @escaping () -> Void) {
+        guard isXcodeRunning() else {
+            done();
+            return;
+        }
+        let alert = NSAlert()
+        alert.addButton(withTitle: "Continue")
+        alert.messageText = "Quit Xcode"
+        alert.informativeText = "Xcode can't be running while updating Zcode. Please quit it."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Cancel")
+        switch alert.runModal() {
+        case .alertFirstButtonReturn:
+            interceptInstallCompletion(done)
+
+        default:
+            return
         }
     }
 
