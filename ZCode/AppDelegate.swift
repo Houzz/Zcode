@@ -10,7 +10,7 @@ import Cocoa
 import GitHubUpdates
 
 private func isXcodeRunning() -> Bool {
-    return NSWorkspace.shared.runningApplications.compactMap { $0.bundleIdentifier }.contains("com.apple.dt.Xcode")
+    return !NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dt.Xcode").isEmpty
 }
 
 @NSApplicationMain

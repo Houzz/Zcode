@@ -537,7 +537,18 @@ extension SourceZcodeCommand {
                 if braceLevel == 0 {
                     if priorBraceLevel == 1 {
                         if cursorPosition.isZero || (lineIndex >= cursorPosition.line && cursorPosition.line >= startClassLine) {
-                            for (key, value) in functions {
+                            let f = functions.values.sorted(by: {
+                                if let firstStart = $0.start {
+                                    if let secondStart = $1.start {
+                                        return firstStart > secondStart
+                                    } else {
+                                        return true
+                                    }
+                                } else {
+                                    return false
+                                }
+                            })
+                            for value in f {
                                 if let start = value.start, let end = value.end {
                                     deleteLines(from: start, to: end + 1)
                                     if lineIndex > start {
@@ -548,6 +559,8 @@ extension SourceZcodeCommand {
                                     insert([""], at: lineIndex, select: false)
                                     _ = value.create(lineIndex + 1, info, value.custom, self)
                                 }
+                            }
+                            for (key,_) in functions {
                                 functions[key]?.start = nil
                                 functions[key]?.end = nil
                                 functions[key]?.custom = nil
