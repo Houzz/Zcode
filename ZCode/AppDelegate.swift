@@ -29,6 +29,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, GitHubUpdaterDelegate {
         updater.checkForUpdatesInBackground()
     }
 
+    @IBAction func checkForUpdates(_ sender: Any) {
+        updater.checkForUpdates(sender)
+    }
+    
     func interceptInstallCompletion(_ done: @escaping () -> Void) {
         guard isXcodeRunning() else {
             done();
