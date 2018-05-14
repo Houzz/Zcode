@@ -198,7 +198,7 @@ extension DefaultKey.DefaultType {
 
 extension SourceZcodeCommand {
     public func makeDefaults() {
-        let defKeyRegex = Regex("DefaultKey\\(\"(.*)\", *type: *.([a-zA-Z]+)(?:, options: *)?(?:\\[(.*)\\])?")
+        let defKeyRegex = Regex("DefaultKey\\(\"(.*)\", *type: *.([a-zA-Z]+)(?:, options: *)?(?:\\[(.*?)\\])?")
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+ *UserDefaults(.*)\\{ *$", options: [.anchorsMatchLines])
         let endPattern = "// MARK: - Generated accessors"
         var className: String? = nil
@@ -241,10 +241,15 @@ extension SourceZcodeCommand {
             }
             let objc = prop.options.contains(.objc) ? "@objc " : ""
             output.append("\(indentationString(level: 1))\(objc)public var \(prop.name): \(prop.type.stringValue)\(prop.isOptional ? "?" : "") {")
+            let isWritable = prop.options.contains(.write)
+            if isWritable {
             output.append("\(indentationString(level: 2))get {")
-            output.append("\(indentationString(level: 3))return \(prop.getStatement)")
+            }
+            output.append("\(indentationString(level: isWritable ? 3 : 2))return \(prop.getStatement)")
+            if isWritable {
             output.append("\(indentationString(level: 2))}")
-            if prop.options.contains(.write) {
+            }
+            if isWritable {
                 output.append("\(indentationString(level: 2))set {")
                 output.append("\(indentationString(level: 3))\(prop.setStatement)")
                 output.append("\(indentationString(level: 2))}")
