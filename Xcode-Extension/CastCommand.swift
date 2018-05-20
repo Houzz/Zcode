@@ -313,6 +313,7 @@ private class ParseInfo {
 
     func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
+        var subDicts = [String]()
         var override = ""
         if classInheritence == nil {
             classInheritence = [String]()
@@ -331,34 +332,44 @@ private class ParseInfo {
             }
         }
 
-        var level = 2
         for variable in variables {
             if variable.skip {
                 continue;
             }
             let optStr = variable.optional ? "?" : ""
             let keys = variable.key.first!.components(separatedBy: "/")
+            var sameHeirarchy = true
             for (idx, key) in keys.enumerated() {
                 let dName = (idx == 0) ? "dict" : "dict\(idx)"
                 if idx == keys.count - 1 {
-                    output.append("\(editor.indentationString(level: level))if let x = \(variable.name)\(optStr).jsonValue {")
-                    output.append("\(editor.indentationString(level: level + 1))\(dName)[\"\(key)\"] = x")
-                    output.append("\(editor.indentationString(level: level))}")
+                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(key)\"] = \(variable.name)\(optStr).jsonValue")
 
-                    for idx2 in(0 ..< idx).reversed() {
+                    for idx2 in (0 ..< idx).reversed() {
                         let idx3 = idx2 + 1
                         let dName = (idx2 == 0) ? "dict" : "dict\(idx2)"
                         let prevName = "dict\(idx3)"
-                        output.append("\(editor.indentationString(level: level))\(dName)[\"\(keys[idx2])\"] = \(prevName)")
-                        level -= 1
-                        output.append("\(editor.indentationString(level: level))}")
+                        output.append("\(editor.indentationString(level: 2))\(dName)[\"\(keys[idx2])\"] = \(prevName)")
                     }
                 } else {
                     let nidx = idx + 1
-                    let nextName =  "dict\(nidx)"
-                    output.append("\(editor.indentationString(level: level))do {")
-                    level += 1
-                    output.append("\(editor.indentationString(level: level))var \(nextName) = \(dName)[\"\(key)\"] as? [String: Any] ?? [String: Any]()")
+                    let nextName = "dict\(nidx)"
+                    if idx < subDicts.count && sameHeirarchy {
+                        if key == subDicts[idx] {
+                            continue
+                        } else {
+                            sameHeirarchy = false
+                        }
+                    }
+                    output.append("\(editor.indentationString(level: 2))\(nidx > subDicts.count ? "var " : "")\(nextName) = \(dName)[\"\(key)\"] as? [String: Any] ?? [String: Any]()")
+                }
+            }
+            if keys.count > 1 {
+                for i in 0 ..< keys.count - 1 {
+                    if i < subDicts.count {
+                        subDicts[i] = keys[i]
+                    } else {
+                        subDicts.append(keys[i])
+                    }
                 }
             }
         }
