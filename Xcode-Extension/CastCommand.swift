@@ -101,7 +101,7 @@ struct VarInfo {
 
     func decodeCall(editor: SourceZcodeCommand) -> [String] {
         var v = [String]()
-        v.append("\(editor.indentationString(level: 2))if let v = \(type).decode(with: aDecoder, fromKey:\"\(name)\") {")
+        v.append("\(editor.indentationString(level: 2))if let v = \(type).decode(with: aDecoder, fromKey: \"\(name)\") {")
         v.append("\(editor.indentationString(level: 3))\(name) = v")
         v.append("\(editor.indentationString(level: 2))}")
 
@@ -149,7 +149,7 @@ struct VarInfo {
         if (optional || isNullable || defaultValue != nil) && doNil {
             output.append("\(editor.indentationString(level: 2))\(name) = \(assignExpr)")
         } else {
-            output.append("\(editor.indentationString(level: 2))if let v:\(type) = \(assignExpr) {")
+            output.append("\(editor.indentationString(level: 2))if let v: \(type) = \(assignExpr) {")
             output.append("\(editor.indentationString(level: 3))\(name) = v")
             output.append("\(editor.indentationString(level: 2))}")
             if doNil {
@@ -229,18 +229,19 @@ private class ParseInfo {
         }
 
         // init
-        var l = [editor.indentationString(level: 1)]
-        if !isStruct {
-            l.append("required")
-        }
+        var l = [String]()
         if classAccess == "open" {
             l.append("public")
         } else if !classAccess.isEmpty {
             l.append(classAccess)
         }
+        if !isStruct {
+            l.append("required")
+        }
+
         l.append("init?(dictionary dict: JSONDictionary) { // Generated")
 
-        output.append(l.joined(separator: " "))
+        output.append("\(editor.indentationString(level: 1))\(l.joined(separator: " "))")
 
         for variable in variables {
             if variable.skip {
@@ -389,7 +390,7 @@ private class ParseInfo {
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public " : "\(classAccess) "
 
-        output.append("\(editor.indentationString(level: 1))required \(initAccess)init?(coder aDecoder: NSCoder) { // Generated")
+        output.append("\(editor.indentationString(level: 1))\(initAccess)required init?(coder aDecoder: NSCoder) { // Generated")
 
         for variable in variables {
             output += variable.decodeCall(editor: editor)
