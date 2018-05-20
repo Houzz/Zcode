@@ -235,7 +235,7 @@ extension SourceZcodeCommand {
         deleteLines(from: mark, to: source.lineCount)
         }
         output.append("extension \(name) {")
-        for prop in vars {
+        for (idx,prop) in vars.enumerated() {
             if prop.options.contains(.manual) {
                 continue
             }
@@ -255,6 +255,9 @@ extension SourceZcodeCommand {
                 output.append("\(indentationString(level: 2))}")
             }
             output.append("\(indentationString(level: 1))}")
+            if idx < vars.count - 1 {
+                output.append("")
+            }
         }
         output.append("}")
         insert(output, at: source.lineCount)
