@@ -572,16 +572,17 @@ extension SourceZcodeCommand {
                                     _ = value.create(lineIndex + 1, info, value.custom, self)
                                 }
                             }
-                            for (key,_) in functions {
-                                functions[key]?.start = nil
-                                functions[key]?.end = nil
-                                functions[key]?.custom = nil
-                            }
+
                             if !cursorPosition.isZero {
                                 stop = true
                             }
                         }
-                            parseInfo = nil
+                        for (key,_) in functions {
+                            functions[key]?.start = nil
+                            functions[key]?.end = nil
+                            functions[key]?.custom = nil
+                        }
+                        parseInfo = nil
                     }
                 } else if priorBraceLevel == 2 && braceLevel == 1 {
                         for (_,info) in functions {
@@ -626,6 +627,7 @@ extension SourceZcodeCommand {
                     for (_,info) in functions {
                         if info.inside && line.contains(startReadCustomPattern) {
                             info.inBlock = true
+                            info.custom = nil
                             break
                         }
                     }
