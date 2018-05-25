@@ -316,6 +316,7 @@ private class ParseInfo {
         var output = [String]()
         var subDicts = [String]()
         var override = ""
+        var contentFor = [String: (String, Int)]()
         if classInheritence == nil {
             classInheritence = [String]()
         }
@@ -349,7 +350,18 @@ private class ParseInfo {
                         let idx3 = idx2 + 1
                         let dName = (idx2 == 0) ? "dict" : "dict\(idx2)"
                         let prevName = "dict\(idx3)"
-                        output.append("\(editor.indentationString(level: 2))\(dName)[\"\(keys[idx2])\"] = \(prevName)")
+                        let lhs = "\(dName)[\"\(keys[idx2])\"]"
+                        if let c = contentFor[lhs], c.0 == prevName {
+                            output.remove(at: c.1)
+                            let before = contentFor
+                            for (key,value) in before {
+                                if value.1 > c.1 {
+                                    contentFor[key] = (value.0, value.1 - 1)
+                                }
+                            }
+                        }
+                        contentFor[lhs] = (prevName, output.count)
+                        output.append("\(editor.indentationString(level: 2))\(lhs) = \(prevName)")
                     }
                 } else {
                     let nidx = idx + 1
