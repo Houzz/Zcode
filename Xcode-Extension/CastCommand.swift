@@ -484,7 +484,7 @@ extension SourceZcodeCommand {
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
         let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *\\{* *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?")
         let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *custom")
-        let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]) *\\{* *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?")
+        let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]?) *\\{* *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?")
         let customDictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?:.*?\\][!?]?) *//! *(?:= *(nil))? *custom")
         let skipVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *ignore json")
         let ignoreRegex = Regex("(.*)//! *ignore", options: [.caseInsensitive])
