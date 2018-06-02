@@ -43,6 +43,8 @@
 		E4A1705D209DF9A500CB06B3 /* Release.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B537A7208CA0AC003E89E6 /* Release.swift */; };
 		E4B537A6208C9E61003E89E6 /* Cast.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B537A5208C9E61003E89E6 /* Cast.swift */; };
 		E4B537A8208CA0AC003E89E6 /* Release.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B537A7208CA0AC003E89E6 /* Release.swift */; };
+		E4DBE9A620C2B24000C414E5 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBE9A520C2B24000C414E5 /* Extensions.swift */; };
+		E4DBE9A720C2B24000C414E5 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBE9A520C2B24000C414E5 /* Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -131,6 +133,7 @@
 		E473ED7D20A8726500C12D9E /* GitHubUpdates.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = GitHubUpdates.xcodeproj; path = GitHubUpdates/GitHubUpdates.xcodeproj; sourceTree = "<group>"; };
 		E4B537A5208C9E61003E89E6 /* Cast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cast.swift; sourceTree = "<group>"; };
 		E4B537A7208CA0AC003E89E6 /* Release.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Release.swift; sourceTree = "<group>"; };
+		E4DBE9A520C2B24000C414E5 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -216,6 +219,7 @@
 				E414C5141FADE24E0083C242 /* AssertOutlets.entitlements */,
 				E4B537A7208CA0AC003E89E6 /* Release.swift */,
 				E4356551209460AB0019367A /* DefaultsCommand.swift */,
+				E4DBE9A520C2B24000C414E5 /* Extensions.swift */,
 			);
 			path = "Xcode-Extension";
 			sourceTree = "<group>";
@@ -384,6 +388,7 @@
 				E4356544209350B50019367A /* SourceEditorCommand.swift in Sources */,
 				E414C4F91FADE1F20083C242 /* ViewController.swift in Sources */,
 				E414C4F71FADE1F20083C242 /* AppDelegate.swift in Sources */,
+				E4DBE9A620C2B24000C414E5 /* Extensions.swift in Sources */,
 				E43565362092F7730019367A /* CastCommand.swift in Sources */,
 				E43565372092F77A0019367A /* Regex.swift in Sources */,
 				E435654320934FBF0019367A /* ZcodeApp.swift in Sources */,
@@ -405,6 +410,7 @@
 				E414C5291FADF2580083C242 /* Scan.swift in Sources */,
 				E414C5251FADF1920083C242 /* Regex.swift in Sources */,
 				E401E8111FB35793004DBFA4 /* CastCommand.swift in Sources */,
+				E4DBE9A720C2B24000C414E5 /* Extensions.swift in Sources */,
 				E435653D2092FEB00019367A /* ZcodeCommand.swift in Sources */,
 				E414C51D1FADEF260083C242 /* AssertOutlets.swift in Sources */,
 				E414C5121FADE24E0083C242 /* SourceEditorCommand.swift in Sources */,

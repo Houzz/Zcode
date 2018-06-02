@@ -18,19 +18,22 @@ extension String {
     }
 
     func jsonKey(asIs: Bool) -> String {
-        let correctCaseKey: String = trimmingCharacters(in: CharacterSet.whitespaces)
+        let trimmedKey: String = trimmingCharacters(in: CharacterSet.whitespaces)
         if asIs {
-            return correctCaseKey
+            return trimmedKey
         }
         switch Defaults.keyCase {
         case .none:
-            return correctCaseKey
+            return trimmedKey
 
         case .upper:
-            return "\(correctCaseKey[0].uppercased())\(correctCaseKey[1 ..< correctCaseKey.count])"
+            return "\(trimmedKey[0].uppercased())\(trimmedKey[1 ..< trimmedKey.count])"
 
         case .snake:
-            return correctCaseKey.snakeCased()
+            return trimmedKey.snakeCased()
+
+        case .screamingSnake:
+            return trimmedKey.snakeCased().uppercased()
         }
     }
 }

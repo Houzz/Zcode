@@ -10,9 +10,29 @@ import Foundation
 import AppKit
 
 public enum CaseType: String {
-    case none = "none"
-    case upper = "upper"
-    case snake = "snake"
+    case none
+    case upper
+    case snake
+    case screamingSnake
+
+    public init?(rawValue: String) {
+        switch rawValue {
+        case "upper".caseInsensitive, "CamelCase":
+            self = .upper
+
+        case "snake".caseInsensitive:
+            self = .snake
+
+        case "none".caseInsensitive, "lower".caseInsensitive, "default".caseInsensitive, "camelCase":
+            self = .none
+
+        case "screamingSnake".caseInsensitive:
+            self = .screamingSnake
+
+        default:
+            return nil
+        }
+    }
 }
 
 class Defaults {
