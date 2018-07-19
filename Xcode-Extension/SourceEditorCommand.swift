@@ -37,34 +37,66 @@ class SourceZcodeCommand {
         }
     }
 
+    /// finish the command - must be called at end of command
+    ///
+    /// - Parameter error: an optional error to send to XCode.
     func finish(error: CommandError? = nil) {
         source.finish(error: error)
     }
 
+    /// Select lines in Xcode. Lines will be selected in xcode.
+    ///
+    /// - Parameters:
+    ///   - from: line index
+    ///   - count: number of lines to select
     func selectLines(from: Int, count: Int) {
         source.selectLines(from: from, count: count)
     }
 
+    /// Move the Xcode cursor
+    ///
+    /// - Parameters:
+    ///   - line: line index
+    ///   - column: character in line
     func moveCursor(toLine line: Int, column: Int) {
         source.moveCursor(toLine: line, column: column)
     }
 
+    /// return the current Xcode cursor position
     var cursorPosition: SourcePosition {
         return source.cursorPosition
     }
 
+    /// Delete source lines
+    ///
+    /// - Parameters:
+    ///   - from: line index
+    ///   - to: line index
     func deleteLines(from: Int, to: Int) {
         source.deleteLines(from: from, to: to)
     }
 
+    /// Insert lines
+    ///
+    /// - Parameters:
+    ///   - newlines: array of lines to insert
+    ///   - idx: Index to insert lines
+    ///   - select: if true inserted lines are selected
     func insert(_ newlines: [String], at idx: Int, select: Bool = true) {
         source.insert(newlines, at: idx, select: select)
     }
 
+    /// indentation string taking into consideration file indentation format
+    ///
+    /// - Parameter level: level of indenetation, e.g. 1 is in a class, 2 is in in a func in a class, etc.
+    /// - Returns: string to use to get to this level of indentation.
     func indentationString(level: Int) -> String {
         return source.indentationString(level:level)
     }
 
+    /// iterate over all source lines
+    ///
+    /// - Parameter handler: Block to run on each line, the function will automatically skip comments, it gets the following parameters: the line index, the line, the current brace level and the previous line brace level and a stop flag, if set to true by the block iteration is stopped.
     func enumerateLines(withBlock handler: (_ lineIndex: Int, _ line: String, _ braceLevel: Int, _ previousBraceLevel: Int, _ stop: inout Bool) -> Void) {
         var braceLevel = 0
         var previousBraceLevel = 0
