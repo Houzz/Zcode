@@ -32,6 +32,7 @@ struct CommandOptions: OptionSet {
     public static let assert = CommandOptions(rawValue: 1 << 4)
     public static let cast = CommandOptions(rawValue: 1 << 5)
     public static let defaults = CommandOptions(rawValue: 1 << 6)
+    public static let multipart = CommandOptions(rawValue: 1 << 7)
 }
 
 

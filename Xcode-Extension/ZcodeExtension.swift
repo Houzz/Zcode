@@ -51,6 +51,9 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         case "default":
             options = .defaults
 
+        case "multipart":
+            options = .multipart
+            
         default:
             completionHandler(CommandError.unknown.error)
             return

@@ -29,7 +29,7 @@ class SourceZcodeCommand {
         if options.contains(.assert) {
             assertOutlets()
         }
-        if !options.isDisjoint(with: [.cast, .read, .copying, .coding, .customInit]) {
+        if !options.isDisjoint(with: [.cast, .read, .copying, .coding, .customInit, .multipart]) {
             cast(command: options)
         }
         if options.contains(.defaults) {

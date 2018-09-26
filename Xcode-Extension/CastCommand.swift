@@ -190,6 +190,7 @@ private enum Function {
     case read
     case encode
     case customInit
+    case multipart
 }
 
 private class FunctionInfo {
@@ -399,6 +400,91 @@ private class ParseInfo {
         editor.insert(output, at: lineIndex)
         return output.count
     }
+    
+    func createMultipartDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
+        var output = [String]()
+        var subDicts = [String]()
+        var override = ""
+        var contentFor = [String: (String, Int)]()
+        if classInheritence == nil {
+            classInheritence = [String]()
+        }
+        if !classInheritence!.contains("DictionaryConvertible") && !isStruct {
+            override = "override "
+        }
+        output.append("\(editor.indentationString(level: 1))\(isObjc ? "@objc " : "")\(override)\(classAccess.isEmpty ? "" : "\(classAccess) ")func multipartDictionaryRepresentation() -> [String: Any] { // Generated")
+        if override.isEmpty {
+            output.append("\(editor.indentationString(level: 2))var dict = [String: Any]()")
+        } else {
+            if let superTag = superTag {
+                output.append("\(editor.indentationString(level: 2))var dict:[String:Any] = [\"\(superTag)\": super.multipartDictionaryRepresentation()]")
+            } else {
+                output.append("\(editor.indentationString(level: 2))var dict = super.multipartDictionaryRepresentation()")
+            }
+        }
+        
+        for variable in variables {
+            if variable.skip {
+                continue;
+            }
+            let optStr = variable.optional ? "?" : ""
+            let keys = variable.key.first!.components(separatedBy: "/")
+            var sameHeirarchy = true
+            for (idx, key) in keys.enumerated() {
+                let dName = (idx == 0) ? "dict" : "dict\(idx)"
+                if idx == keys.count - 1 {
+                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(className!.lowercased())[\(key)]\"] = \(variable.name)\(optStr).jsonValue")
+                    
+                    for idx2 in (0 ..< idx).reversed() {
+                        let idx3 = idx2 + 1
+                        let dName = (idx2 == 0) ? "dict" : "dict\(idx2)"
+                        let prevName = "dict\(idx3)"
+                        let lhs = "\(dName)[\"\(keys[idx2])\"]"
+                        if let c = contentFor[lhs], c.0 == prevName {
+                            output.remove(at: c.1)
+                            let before = contentFor
+                            for (key,value) in before {
+                                if value.1 > c.1 {
+                                    contentFor[key] = (value.0, value.1 - 1)
+                                }
+                            }
+                        }
+                        contentFor[lhs] = (prevName, output.count)
+                        output.append("\(editor.indentationString(level: 2))\(lhs) = \(prevName)")
+                    }
+                } else {
+                    let nidx = idx + 1
+                    let nextName = "dict\(nidx)"
+                    if idx < subDicts.count && sameHeirarchy {
+                        if key == subDicts[idx] {
+                            continue
+                        } else {
+                            sameHeirarchy = false
+                        }
+                    }
+                    output.append("\(editor.indentationString(level: 2))\(nidx > subDicts.count ? "var " : "")\(nextName) = \(dName)[\"\(key)\"] as? [String: Any] ?? [String: Any]()")
+                }
+            }
+            if keys.count > 1 {
+                for i in 0 ..< keys.count - 1 {
+                    if i < subDicts.count {
+                        subDicts[i] = keys[i]
+                    } else {
+                        subDicts.append(keys[i])
+                    }
+                }
+            }
+        }
+        output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
+        if let customLines = customLines {
+            output += customLines
+        } else {
+            output.append("\(editor.indentationString(level: 2))return dict")
+        }
+        output.append("\(editor.indentationString(level: 1))}")
+        editor.insert(output, at: lineIndex)
+        return output.count
+    }
 
     func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         let codingOverride = !classInheritence!.contains("NSCoding")
@@ -535,6 +621,11 @@ extension SourceZcodeCommand {
             command.contains(.customInit)
         }, create: { (line, info, custom, editor) in
             info.createCustomInit(lineIndex: line, customLines: custom, editor: editor)
+        })
+        functions[.multipart] = FunctionInfo(expression: "func multipartDictionaryRepresentation() -> [String: Any] { // Generated", condition: { (command, _) -> Bool in
+            command.contains(.multipart)
+        }, create: { (line, info, custom, editor) in
+            info.createMultipartDictionaryRepresentation(lineIndex: line, customLines: custom, editor: editor)
         })
         
         enumerateLines { (in_lineIndex, line, braceLevel, priorBraceLevel, stop) in
