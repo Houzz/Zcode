@@ -586,7 +586,7 @@ extension SourceZcodeCommand {
         let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
         let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
         let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
-        let signature = Regex("//! zcode\\.sig =")
+        let signature = Regex("// zcode fingerprint =")
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
@@ -767,7 +767,7 @@ extension SourceZcodeCommand {
 
         linesForChecksum.append("")
         let md5 = linesForChecksum.joined(separator: "\n").md5()
-        let sigline = "//! zcode.sig = \(md5)"
+        let sigline = "// zcode fingerprint = \(md5)"
         if let line = signatureLine {
             deleteLines(from: line, to: line + 1)
             insert([sigline], at: line)
