@@ -76,6 +76,10 @@ class SourceZcodeCommand {
         source.deleteLines(from: from, to: to)
     }
 
+    func append(_ line: String) {
+        source.append(line)
+    }
+
     /// Insert lines
     ///
     /// - Parameters:

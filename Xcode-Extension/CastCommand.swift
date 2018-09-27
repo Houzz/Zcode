@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CommonCrypto
 let startReadCustomPattern = "// Add custom code after this comment"
 
 extension String {
@@ -585,6 +586,7 @@ extension SourceZcodeCommand {
         let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
         let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
         let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
+        let signature = Regex("//! zcode\\.sig =")
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
@@ -627,7 +629,10 @@ extension SourceZcodeCommand {
         }, create: { (line, info, custom, editor) in
             info.createMultipartDictionaryRepresentation(lineIndex: line, customLines: custom, editor: editor)
         })
-        
+
+
+        var linesForChecksum = [String]()
+        var signatureLine: Int? = nil
         enumerateLines { (in_lineIndex, line, braceLevel, priorBraceLevel, stop) in
             var lineIndex = in_lineIndex
             if braceLevel > 1 {
@@ -648,7 +653,10 @@ extension SourceZcodeCommand {
                     Defaults.override(.useLogger, value: v)
                 } else if let matches: [String?] = nilCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
                     Defaults.override(.nilStrings, value: v)
-              }
+                } else if signature.match(line) {
+                    signatureLine = lineIndex
+                }
+
             }
             
             if let info = parseInfo {
@@ -679,9 +687,9 @@ extension SourceZcodeCommand {
                                 }
                             }
 
-                            if !cursorPosition.isZero {
-                                stop = true
-                            }
+//                            if !cursorPosition.isZero {
+//                                stop = true
+//                            }
                         }
                         for (key,_) in functions {
                             functions[key]?.start = nil
@@ -708,12 +716,16 @@ extension SourceZcodeCommand {
                     } else if let matches: [String?] = skipVarRegex.matchGroups(line) {
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: true, key: nil, useCustom: false, skip: true, className: info.className!))
                     } else if let matches: [String?] = customDictRegex.matchGroups(line) {
+                        linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
                     } else if let matches: [String?] = dictRegex.matchGroups(line) {
+                        linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
-                   } else if let matches: [String?] = customVarRegex.matchGroups(line) {
+                    } else if let matches: [String?] = customVarRegex.matchGroups(line) {
+                        linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
-                   } else if let matches: [String?] = varRegex.matchGroups(line) {
+                    } else if let matches: [String?] = varRegex.matchGroups(line) {
+                        linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
                     } else if let matches: [String?] = superTagRegex.matchGroups(line) {
                         if let str = matches[1] {
@@ -752,9 +764,37 @@ extension SourceZcodeCommand {
                 }
             }
         }
-        
+
+        linesForChecksum.append("")
+        let md5 = linesForChecksum.joined(separator: "\n").md5()
+        let sigline = "//! zcode.sig = \(md5)"
+        if let line = signatureLine {
+            deleteLines(from: line, to: line + 1)
+            insert([sigline], at: line)
+        } else {
+            append("\(sigline)\n")
+        }
+        print(sigline)
         finish()
     }
+}
 
 
+extension String {
+   public func md5() -> String {
+        var digest = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+        if let d = data(using: .utf8) {
+            _ = d.withUnsafeBytes { (body: UnsafePointer<UInt8>) in
+                CC_MD5(body, CC_LONG(d.count), &digest)
+            }
+        }
+
+        var digestHex = [String]()
+        for index in 0 ..< Int(CC_MD5_DIGEST_LENGTH) {
+            let snippet = String(format: "%02x", digest[index])
+            digestHex.append(snippet)
+        }
+
+        return digestHex.joined(separator: "")
+    }
 }

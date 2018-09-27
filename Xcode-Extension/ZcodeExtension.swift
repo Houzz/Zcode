@@ -133,6 +133,10 @@ class XcodeSource : ZcodeCommand {
         }
     }
 
+    func append(_ line: String) {
+        source.lines.add(line)
+    }
+
     func indentationString(level: Int) -> String {
         var cache = [Int:String]()
         if let s = cache[level] {

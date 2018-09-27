@@ -9,6 +9,10 @@
 import Foundation
 
 class LinesSource : ZcodeCommand {
+    func append(_ line: String) {
+        source.append(line)
+    }
+
     var linePos: Int = 0
     var source: [String]
     var completionHandler: ((Error?) -> Void)?

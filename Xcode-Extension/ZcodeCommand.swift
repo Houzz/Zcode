@@ -75,6 +75,7 @@ protocol ZcodeCommand: class {
     func line(_ idx: Int) -> String
     func finish(error: CommandError?)
     func moveCursor(toLine line: Int, column: Int)
+    func append(_ line: String)
 }
 
 
