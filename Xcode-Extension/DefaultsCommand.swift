@@ -200,11 +200,13 @@ extension SourceZcodeCommand {
     public func makeDefaults() {
         let defKeyRegex = Regex("DefaultKey\\(\"(.*)\", *type: *.([a-zA-Z]+)(?:, options: *)?(?:\\[(.*?)\\])?")
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+ *UserDefaults(.*)\\{ *$", options: [.anchorsMatchLines])
+        let signature = Regex("// zcode defaults fingerprint =")
         let endPattern = "// MARK: - Generated accessors"
         var className: String? = nil
         var markLine: Int? = nil
         var vars = [DefaultKey]()
 
+        var linesForChecksum = [String]()
         enumerateLines { (in_lineIndex, line, braceLevel, priorBraceLevel, stop) in
             switch priorBraceLevel {
             case 0:
@@ -216,6 +218,7 @@ extension SourceZcodeCommand {
 
             case 1:
                 if let groups = defKeyRegex.matchGroups(line), let name = groups[1], let type = groups[2] {
+                    linesForChecksum.append(line)
                     let d = line.contains("default:") && !line.contains("default: nil") ? "x" : nil
                     vars.append(DefaultKey(name, type: DefaultKey.DefaultType(string: type), options: DefaultKey.Option(string: groups[3]), default: d, key: nil))
                 }
@@ -223,7 +226,7 @@ extension SourceZcodeCommand {
             default:
                 break
             }
-        }
+         }
 
         guard let name = className else {
             finish(error: CommandError.noDefaultsClass)
@@ -260,7 +263,15 @@ extension SourceZcodeCommand {
             }
         }
         output.append("}")
+        linesForChecksum.append("")
+        let md5 = linesForChecksum.joined(separator: "\n").md5()
+        let sigline = "// zcode defaults fingerprint = \(md5)"
+        output.append(sigline)
         insert(output, at: source.lineCount)
+
+
+        print(sigline)
+
         finish()
     }
 }

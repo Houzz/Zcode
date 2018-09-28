@@ -25,6 +25,10 @@ class SourceZcodeCommand {
         self.options = options
     }
 
+    var lineCount: Int {
+        return source.lineCount
+    }
+
     func perform() {
         if options.contains(.assert) {
             assertOutlets()
