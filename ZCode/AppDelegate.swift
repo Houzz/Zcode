@@ -23,12 +23,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, GitHubUpdaterDelegate {
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        #if !DEBUG
         updater.user = "houzz"
         updater.repository = "zcode"
         updater.delegate = self
         updater.checkForUpdatesInBackground()
-        #endif
     }
 
     @IBAction func checkForUpdates(_ sender: Any) {

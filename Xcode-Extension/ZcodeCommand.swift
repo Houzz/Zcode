@@ -33,6 +33,10 @@ struct CommandOptions: OptionSet {
     public static let cast = CommandOptions(rawValue: 1 << 5)
     public static let defaults = CommandOptions(rawValue: 1 << 6)
     public static let multipart = CommandOptions(rawValue: 1 << 7)
+
+    public func containsOne(_ a: CommandOptions) -> Bool {
+        return !self.isDisjoint(with: a)
+    }
 }
 
 
