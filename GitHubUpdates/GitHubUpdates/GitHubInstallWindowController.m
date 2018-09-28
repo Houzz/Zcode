@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_END
     self.window.titleVisibility            = NSWindowTitleHidden;
     
     self.textView.textContainerInset = NSMakeSize( 10.0, 15.0 );
-    
+
     app     = [ [ NSBundle mainBundle ] objectForInfoDictionaryKey: @"CFBundleName" ];
     version = [ [ NSBundle mainBundle ] objectForInfoDictionaryKey: @"CFBundleShortVersionString" ];
     
@@ -150,8 +150,18 @@ NS_ASSUME_NONNULL_END
     {
         self.message = [ NSString stringWithFormat: NSLocalizedString( @"Version %@ is available. You have version %@. Would you like to install the new version now?", @"" ), self.githubRelease.tagName, version ];
     }
-    
-    self.releaseNotes = [ NSAttributedString attributedStringFromMarkdownString: self.githubRelease.body ];
+
+    if (@available(macOS 10.14, *)) {
+        if ([[self.textView.effectiveAppearance bestMatchFromAppearancesWithNames:@[NSAppearanceNameDarkAqua, NSAppearanceNameAqua]] isEqual:NSAppearanceNameDarkAqua]) {
+            NSMutableAttributedString *str = [[NSAttributedString attributedStringFromMarkdownString: self.githubRelease.body] mutableCopy];
+            [str setAttributes:@{NSForegroundColorAttributeName: [NSColor whiteColor]} range:NSMakeRange(0, str.length)];
+            self.releaseNotes = str;
+        } else {
+            self.releaseNotes = [ NSAttributedString attributedStringFromMarkdownString: self.githubRelease.body ];
+        }
+    } else {
+        self.releaseNotes = [ NSAttributedString attributedStringFromMarkdownString: self.githubRelease.body ];
+    }
 }
 
 - ( IBAction )install: ( nullable id )sender {
