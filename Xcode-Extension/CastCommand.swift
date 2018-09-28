@@ -590,17 +590,17 @@ extension SourceZcodeCommand {
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
-            (command.contains(.cast) && info.classInheritence!.contains("NSCopying")) || command.contains(.copying))
+            (command.contains(.cast) && info.classInheritence!.contains("NSCopying")) || command.contains(.copying)
         }, create: { (line, info, custom, editor) -> Int in
             info.createCopy(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.encode] = FunctionInfo(expression: "func encode(with aCoder: NSCoder) { // Generated", condition: { (command, info) in
-            (command.contains(.cast) && info.classInheritence!.contains("NSCoding")) || command.containsOne([.copying, .coding])
+            (command.contains(.cast) && info.classInheritence!.contains("NSCoding")) || command.intersects([.copying, .coding])
         }, create: { (line, info, custom, editor) in
             info.createEncodeWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.initWithCoder] = FunctionInfo(expression: "init?(coder aDecoder: NSCoder) { // Generated", condition: { (command, info) in
-            (command.contains(.cast) && info.classInheritence!.contains("NSCoding")) || command.containsOne([.coding, .copying])
+            (command.contains(.cast) && info.classInheritence!.contains("NSCoding")) || command.intersects([.coding, .copying])
         }, create: { (line, info, custom, editor) in
             info.createInitWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })

@@ -34,7 +34,7 @@ struct CommandOptions: OptionSet {
     public static let defaults = CommandOptions(rawValue: 1 << 6)
     public static let multipart = CommandOptions(rawValue: 1 << 7)
 
-    public func containsOne(_ a: CommandOptions) -> Bool {
+    public func intersects(_ a: CommandOptions) -> Bool {
         return !self.isDisjoint(with: a)
     }
 }
