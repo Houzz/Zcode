@@ -5,8 +5,8 @@
 //  Copyright © 2016 Houzz. All rights reserved.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 public protocol JSONValue {
     associatedtype Value = Self
@@ -38,7 +38,7 @@ public protocol JSONDictionary {
 }
 
 public extension JSONDictionary {
-    public func any(forKeyPath path: JSONKey) -> Any? {
+    func any(forKeyPath path: JSONKey) -> Any? {
         let pathComponents = path.value.components(separatedBy: "/")
         var accumulator: Any = self
 
@@ -63,28 +63,32 @@ public extension JSONDictionary {
         return accumulator
     }
 
-    public func value<A: JSONValue>(for key: JSONKey) -> A? {
+    func value<A: JSONValue>() -> A? {
+        return A.value(from: self) as? A
+    }
+
+    func value<A: JSONValue>(for key: JSONKey) -> A? {
         if let any = any(forKeyPath: key) {
             return A.value(from: any) as? A
         }
         return nil
     }
 
-    public func value<A: JSONValue>(for key: JSONKey) -> [A]? {
+    func value<A: JSONValue>(for key: JSONKey) -> [A]? {
         if let any = any(forKeyPath: key) {
             return Array<A>.value(from: any)
         }
         return nil
     }
 
-    public func value<A: RawRepresentable>(for key: JSONKey) -> A? where A.RawValue: JSONValue {
+    func value<A: RawRepresentable>(for key: JSONKey) -> A? where A.RawValue: JSONValue {
         if let raw: A.RawValue = value(for: key) {
             return A(rawValue: raw)
         }
         return nil
     }
 
-    public func value<A: RawRepresentable>(for key: JSONKey) -> [A]? where A.RawValue: JSONValue {
+    func value<A: RawRepresentable>(for key: JSONKey) -> [A]? where A.RawValue: JSONValue {
         if let rawArray: [A.RawValue] = value(for: key) {
             return rawArray.compactMap { A(rawValue: $0) }
         }
@@ -113,6 +117,7 @@ extension RawRepresentable where RawValue: Castable {
 
 extension Dictionary: JSONDictionary, JSONValue {
     public func any(for key: String) -> Any? {
+        assert(!key.contains("/"), "key \(key) contains path elements, use any(forKeyPath:) instead")
         guard let aKey = key as? Key else { return nil }
         return self[aKey]
     }
@@ -122,7 +127,13 @@ extension Dictionary: JSONDictionary, JSONValue {
     }
 
     public static func decode(with decoder: NSCoder, fromKey key: String) -> [Key: Value]? {
-        return decoder.decodeObject(forKey: key) as? [Key: Value]
+        return decoder.decodeObject(of: [NSString.self, NSNumber.self, NSDictionary.self, NSArray.self], forKey: key) as? [Key: Value]
+    }
+}
+
+extension Dictionary where Value: NSCoding {
+    public static func decode(with decoder: NSCoder, fromKey key: String) -> [Key: Value]? {
+        return decoder.decodeObject(of: [Value.self, NSDictionary.self], forKey: key) as? [Key: Value]
     }
 }
 
@@ -138,6 +149,7 @@ extension NSDictionary: JSONDictionary, JSONValue {
     }
 
     public func any(for key: String) -> Any? {
+        assert(!key.contains("/"), "key \(key) contains path elements, use any(forKeyPath:) instead")
         return self.object(forKey: key)
     }
 
@@ -188,7 +200,7 @@ extension String: JSONValue, Castable {
     }
 
     public static func decode(with decoder: NSCoder, fromKey key: String) -> String? {
-        guard let i = decoder.decodeObject(forKey: key) as? String else {
+        guard let i = decoder.decodeObject(of: NSString.self, forKey: key) as String? else {
             return nil
         }
         return i
@@ -368,19 +380,79 @@ extension Array where Element: JSONValue {
     }
 }
 
-extension Array {
-    public func encode(with coder: NSCoder, forKey key: String) {
+public extension Array where Element: NSSecureCoding {
+    func encode(with coder: NSCoder, forKey key: String) {
         coder.encode(self, forKey: key)
     }
 
-    public static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
-        return decoder.decodeObject(forKey: key) as? [Element]
+    static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
+        return decoder.decodeObject(of: [NSArray.self, Element.self], forKey: key) as? [Element]
+    }
+}
+
+public extension Array where Element == String {
+    func encode(with coder: NSCoder, forKey key: String) {
+        coder.encode(self, forKey: key)
+    }
+
+    static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
+        return decoder.decodeObject(of: [NSArray.self, NSString.self], forKey: key) as? [Element]
+    }
+}
+
+public extension Array where Element == [String: String] {
+    func encode(with coder: NSCoder, forKey key: String) {
+        coder.encode(self, forKey: key)
+    }
+
+    static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
+        return decoder.decodeObject(of: [NSArray.self, NSString.self, NSDictionary.self], forKey: key) as? [Element]
+    }
+}
+
+public extension Array where Element == [String: Any] {
+    func encode(with coder: NSCoder, forKey key: String) {
+        coder.encode(self, forKey: key)
+    }
+
+    static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
+        return decoder.decodeObject(of: [NSArray.self, NSString.self, NSDictionary.self, NSNumber.self], forKey: key) as? [Element]
+    }
+}
+
+public extension Array where Element: Numeric {
+    func encode(with coder: NSCoder, forKey key: String) {
+        coder.encode(self, forKey: key)
+    }
+
+    static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
+        return decoder.decodeObject(of: [NSArray.self, NSNumber.self], forKey: key) as? [Element]
     }
 }
 
 extension Array where Element: RawRepresentable, Element.RawValue: JSONValue {
     public var jsonValue: Any? {
         return self.map { $0.jsonValue }
+    }
+}
+
+public extension Array where Element: RawRepresentable, Element.RawValue == String {
+    func encode(with coder: NSCoder, forKey key: String) {
+        coder.encode(self, forKey: key)
+    }
+
+    static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
+        return (decoder.decodeObject(of: [NSArray.self, NSString.self], forKey: key) as? [Element.RawValue])?.compactMap { Element(rawValue: $0) }
+    }
+}
+
+public extension Array where Element: RawRepresentable, Element.RawValue: BinaryInteger {
+    func encode(with coder: NSCoder, forKey key: String) {
+        coder.encode(self, forKey: key)
+    }
+
+    static func decode(with decoder: NSCoder, fromKey key: String) -> [Element]? {
+        return (decoder.decodeObject(of: [NSArray.self], forKey: key) as? [Element.RawValue])?.compactMap { Element(rawValue: $0) }
     }
 }
 
@@ -399,15 +471,14 @@ extension UInt: JSONValue, Castable {
     }
 
     public func encode(with coder: NSCoder, forKey key: String) {
-        coder.encode(Int32(self), forKey: key)
+        coder.encode(Int64(self), forKey: key)
     }
 
     public static func decode(with decoder: NSCoder, fromKey key: String) -> UInt? {
         guard decoder.containsValue(forKey: key) else {
             return nil
         }
-
-        return UInt(decoder.decodeInt32(forKey: key))
+        return UInt(decoder.decodeInt64(forKey: key))
     }
 }
 
@@ -515,13 +586,26 @@ extension UInt64: JSONValue, Castable {
     }
 }
 
-private let trueValues = Set(["true", "True", "TRUE", "yes", "Yes", "YES", "1", "on", "On", "ON"])
+private let trueValues = Set(["true", "yes", "1", "on", "valid"])
+private let falseValues = Set(["false", "no", "0", "off", "invalid"])
 
 extension Bool: JSONValue, Castable {
     public static func value(from object: Any) -> Bool? {
         switch object {
+        case let x as Int:
+            return x != 0
+
         case let x as String:
-            return trueValues.contains(x)
+            let lower = x.lowercased()
+            if trueValues.contains(lower) {
+                return true
+            } else if falseValues.contains(lower) {
+                return false
+            } else if let i = Int(x) {
+                return i != 0
+            } else {
+                return nil
+            }
 
         case let x as Bool:
             return x
@@ -647,20 +731,30 @@ extension URL: JSONValue, Castable {
     }
 
     public static func decode(with decoder: NSCoder, fromKey key: String) -> URL? {
-        guard let i = decoder.decodeObject(forKey: key) as? String else {
+        guard let i = decoder.decodeObject(of: NSString.self, forKey: key) as String? else {
             return nil
         }
         return URL(string: i)
     }
 }
 
-public extension NSCoding { // Make any class conforming to NSCoding work like Castable
+extension Array: Castable where Element == URL {
     public func encode(with coder: NSCoder, forKey key: String) {
+        coder.encode(self.map { $0.absoluteString }, forKey: key)
+    }
+
+    public static func decode(with decoder: NSCoder, fromKey key: String) -> Array<Element>? {
+        return (decoder.decodeObject(of: [NSArray.self, NSString.self], forKey: key) as? [String])?.compactMap { URL(string: $0) }
+    }
+}
+
+public extension NSCoding where Self: NSObject { // Make any class conforming to NSCoding work like Castable
+    func encode(with coder: NSCoder, forKey key: String) {
         coder.encode(self, forKey: key)
     }
 
-    public static func decode(with decoder: NSCoder, fromKey key: String) -> Self? {
-        return decoder.decodeObject(forKey: key) as? Self
+    static func decode(with decoder: NSCoder, fromKey key: String) -> Self? {
+        return decoder.decodeObject(of: self.self, forKey: key)
     }
 }
 
@@ -672,6 +766,8 @@ public protocol DictionaryConvertible: JSONValue {
 extension DictionaryConvertible {
     public static func value(from object: Any) -> Self? {
         if let convertedObject = object as? JSONDictionary, let value = self.init(dictionary: convertedObject) {
+            return value
+        } else if let value = object as? Self {
             return value
         }
         return nil
@@ -703,4 +799,3 @@ extension DictionaryConvertible {
         fatalError("read(from:) not implemented, run JSON cast with -read option")
     }
 }
-

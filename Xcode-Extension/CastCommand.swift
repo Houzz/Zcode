@@ -488,7 +488,7 @@ private class ParseInfo {
     }
 
     func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
-        let codingOverride = !classInheritence!.contains("NSCoding")
+        let codingOverride = !(classInheritence!.contains("NSCoding") || classInheritence!.contains("NSSecureCoding"))
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public " : "\(classAccess) "
 
@@ -512,7 +512,7 @@ private class ParseInfo {
 
     func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
-        let codingOverride = !classInheritence!.contains("NSCoding")
+        let codingOverride = !(classInheritence!.contains("NSCoding") || classInheritence!.contains("NSSecureCoding"))
         let codingOverrideString = codingOverride ? "override " : ""
         output.append("\(editor.indentationString(level: 1))\(classAccess.isEmpty ? "" : "\(classAccess) ")\(codingOverrideString)func encode(with aCoder: NSCoder) { // Generated")
         if codingOverride {
@@ -534,7 +534,8 @@ private class ParseInfo {
 
     func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
-        output.append("\(editor.indentationString(level: 1))\(classAccess.isEmpty ? "" : "\(classAccess) ")func copy(with zone: NSZone? = nil) -> Any { // Generated")
+        let codingOverride = !classInheritence!.contains("NSCopying")
+        output.append("\(editor.indentationString(level: 1))\(classAccess.isEmpty ? "" : "\(classAccess) ")\(codingOverride ? "override " : "")func copy(with zone: NSZone? = nil) -> Any { // Generated")
         output.append("\(editor.indentationString(level: 2))let aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
@@ -587,6 +588,7 @@ extension SourceZcodeCommand {
         let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
         let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
         let signature = Regex("// zcode fingerprint =")
+        let isStatic = Regex("\\b(class|static)\\b.*\\b(var|let)\\b")
 
         var functions = [Function: FunctionInfo]()
         functions[.copy] = FunctionInfo(expression: "func copy(with zone: NSZone? = nil) -> Any { // Generated", condition: { (command, info) in
@@ -595,12 +597,12 @@ extension SourceZcodeCommand {
             info.createCopy(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.encode] = FunctionInfo(expression: "func encode(with aCoder: NSCoder) { // Generated", condition: { (command, info) in
-            (command.contains(.cast) && info.classInheritence!.contains("NSCoding")) || command.intersects([.copying, .coding])
+            (command.contains(.cast) && (info.classInheritence!.contains("NSCoding") || info.classInheritence!.contains("NSSecureCoding"))) || command.intersects([.copying, .coding])
         }, create: { (line, info, custom, editor) in
             info.createEncodeWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })
         functions[.initWithCoder] = FunctionInfo(expression: "init?(coder aDecoder: NSCoder) { // Generated", condition: { (command, info) in
-            (command.contains(.cast) && info.classInheritence!.contains("NSCoding")) || command.intersects([.coding, .copying])
+            (command.contains(.cast) && (info.classInheritence!.contains("NSCoding") || info.classInheritence!.contains("NSSecureCoding"))) || command.intersects([.coding, .copying])
         }, create: { (line, info, custom, editor) in
             info.createInitWithCoder(lineIndex: line, customLines: custom, editor: editor)
         })
@@ -714,17 +716,32 @@ extension SourceZcodeCommand {
                         info.disableHouzzzLogging = true
                         return
                     } else if let matches: [String?] = skipVarRegex.matchGroups(line) {
+                        if isStatic.match(line) {
+                            return
+                        }
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: true, key: nil, useCustom: false, skip: true, className: info.className!))
                     } else if let matches: [String?] = customDictRegex.matchGroups(line) {
+                        if isStatic.match(line) {
+                            return
+                        }
                         linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
                     } else if let matches: [String?] = dictRegex.matchGroups(line) {
+                        if isStatic.match(line) {
+                            return
+                        }
                         linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
                     } else if let matches: [String?] = customVarRegex.matchGroups(line) {
+                        if isStatic.match(line) {
+                            return
+                        }
                         linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
                     } else if let matches: [String?] = varRegex.matchGroups(line) {
+                        if isStatic.match(line) {
+                            return
+                        }
                         linesForChecksum.append(line)
                         info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
                     } else if let matches: [String?] = superTagRegex.matchGroups(line) {

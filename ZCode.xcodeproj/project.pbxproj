@@ -564,6 +564,7 @@
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
 				INFOPLIST_FILE = ZCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 2.9.0;
 				OTHER_SWIFT_FLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -582,6 +583,7 @@
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
 				INFOPLIST_FILE = ZCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 2.9.0;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
