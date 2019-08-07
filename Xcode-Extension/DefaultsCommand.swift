@@ -216,7 +216,7 @@ extension SourceZcodeCommand {
                     markLine = in_lineIndex
                 }
 
-            case 1:
+            case 1...2:
                 if let groups = defKeyRegex.matchGroups(line), let name = groups[1], let type = groups[2] {
                     linesForChecksum.append(line)
                     let d = line.contains("default:") && !line.contains("default: nil") ? "x" : nil
