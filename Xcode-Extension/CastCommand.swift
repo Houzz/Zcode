@@ -577,8 +577,8 @@ extension SourceZcodeCommand {
         let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *custom")
         let dictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?: *[^ ]*\\][!?]?) *\\{* *(?://! *(?:= *([^ ]+))? (v?)\"([^ ]+)\")?")
         let customDictRegex = Regex("(var|let) +([^: ]+?) *: *(\\[.*?: *[^ ]*\\][!?]?) *//! *(?:= *(nil))? *custom")
-        let skipVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *ignore json")
-        let ignoreRegex = Regex("(.*)//! *ignore", options: [.caseInsensitive])
+        let skipForJSON = Regex("//! *ignore *json *$", options: [.caseInsensitive])
+        let ignoreVarRegex = Regex("//! *ignore *$", options: [.caseInsensitive])
         let accessRegex = Regex("(public|private|internal|open)")
         let disableLogging = Regex("//! *nolog")
         let superTagRegex = Regex("//! +super +\"([^\"]+)\"")
@@ -710,40 +710,35 @@ extension SourceZcodeCommand {
                             }
                         }
                 } else if priorBraceLevel == 1 {
-                    if ignoreRegex.match(line) && !skipVarRegex.match(line) {
+                    if ignoreVarRegex.match(line) {
                         return // ignore these
                     } else if disableLogging.match(line) {
                         info.disableHouzzzLogging = true
                         return
-                    } else if let matches: [String?] = skipVarRegex.matchGroups(line) {
-                        if isStatic.match(line) {
-                            return
-                        }
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: true, key: nil, useCustom: false, skip: true, className: info.className!))
-                    } else if let matches: [String?] = customDictRegex.matchGroups(line) {
+                     } else if let matches: [String?] = customDictRegex.matchGroups(line) {
                         if isStatic.match(line) {
                             return
                         }
                         linesForChecksum.append(line)
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, skip: skipForJSON.match(line), className: info.className!))
                     } else if let matches: [String?] = dictRegex.matchGroups(line) {
                         if isStatic.match(line) {
                             return
                         }
                         linesForChecksum.append(line)
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, skip: skipForJSON.match(line), className: info.className!))
                     } else if let matches: [String?] = customVarRegex.matchGroups(line) {
                         if isStatic.match(line) {
                             return
                         }
                         linesForChecksum.append(line)
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, skip: skipForJSON.match(line), className: info.className!))
                     } else if let matches: [String?] = varRegex.matchGroups(line) {
                         if isStatic.match(line) {
                             return
                         }
                         linesForChecksum.append(line)
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, skip: skipForJSON.match(line), className: info.className!))
                     } else if let matches: [String?] = superTagRegex.matchGroups(line) {
                         if let str = matches[1] {
                             info.superTag = str
