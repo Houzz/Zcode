@@ -111,6 +111,7 @@
 		05F1E5FA1EF3A06D0045C4CD /* GitHubTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = GitHubTemplate.pdf; sourceTree = "<group>"; };
 		05F82B251EF32EA700EC8A93 /* GitHubUpdates.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GitHubUpdates.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		05F82B291EF32EA700EC8A93 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E4F2CFA8238025DB00DECB36 /* Relauncher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Relauncher.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +153,7 @@
 		0555EBA11EF3DDA10016167F /* Relauncher */ = {
 			isa = PBXGroup;
 			children = (
+				E4F2CFA8238025DB00DECB36 /* Relauncher.entitlements */,
 				0555EBA21EF3DDA10016167F /* main.m */,
 			);
 			path = Relauncher;
@@ -413,6 +415,8 @@
 		0555EBA51EF3DDA10016167F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Relauncher/Relauncher.entitlements;
+				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -421,6 +425,8 @@
 		0555EBA61EF3DDA10016167F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Relauncher/Relauncher.entitlements;
+				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};

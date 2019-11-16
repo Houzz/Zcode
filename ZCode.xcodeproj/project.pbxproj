@@ -563,6 +563,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ZCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MARKETING_VERSION = 2.9.3;
@@ -583,6 +584,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ZCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MARKETING_VERSION = 2.9.3;
@@ -601,6 +603,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MARKETING_VERSION = 2.9.3;
@@ -619,6 +622,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_TEAM = J8ZST4AX3A;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Xcode-Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
 				MARKETING_VERSION = 2.9.3;
