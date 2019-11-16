@@ -536,7 +536,13 @@ private class ParseInfo {
         var output = [String]()
         let codingOverride = !classInheritence!.contains("NSCopying")
         output.append("\(editor.indentationString(level: 1))\(classAccess.isEmpty ? "" : "\(classAccess) ")\(codingOverride ? "override " : "")func copy(with zone: NSZone? = nil) -> Any { // Generated")
-        output.append("\(editor.indentationString(level: 2))let aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
+        let typeStr: String
+        if let name = className {
+            typeStr = "\(name).self"
+        } else {
+            typeStr = "\(type(of:self))"
+        }
+        output.append("\(editor.indentationString(level: 2))let aCopy = NSKeyedUnarchiver.unarchiveObject(ofClasses: [\(typeStr)], from: NSKeyedArchiver.archivedData(withRootObject: self))!")
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
