@@ -546,7 +546,7 @@ private class ParseInfo {
         output.append("\(editor.indentationString(level: 2))if #available(iOS 13, *) {")
         output.append("\(editor.indentationString(level: 3))aCopy = try! NSKeyedUnarchiver.unarchivedObject(ofClasses: [\(typeStr)], from: NSKeyedArchiver.archivedData(withRootObject: self))!")
         output.append("\(editor.indentationString(level: 2))} else {")
-        output.append("\(editor.indentationString(level: 3))aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self))!")
+        output.append("\(editor.indentationString(level: 3))aCopy = NSKeyedUnarchiver.unarchiveObject(with: NSKeyedArchiver.archivedData(withRootObject: self)) as! Any")
         output.append("\(editor.indentationString(level: 2))}")
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
