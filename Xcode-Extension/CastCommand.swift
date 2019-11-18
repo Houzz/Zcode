@@ -542,7 +542,7 @@ private class ParseInfo {
         } else {
             typeStr = "\(type(of:self))"
         }
-        output.append("\(editor.indentationString(level: 2))let aCopy = try! NSKeyedUnarchiver.unarchivedObject(ofClasses: [\(typeStr)], from: NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: true))")
+        output.append("\(editor.indentationString(level: 2))let aCopy = try! NSKeyedUnarchiver.unarchivedObject(ofClasses: [\(typeStr)], from: NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: true))!")
          output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
