@@ -89,7 +89,7 @@ struct VarInfo {
         self.defaultValue = defaultValue
     }
 
-    var encodeCall: String {
+    fileprivate var encodeCall: String {
         get {
             var ret = ""
             var vv = name
@@ -103,7 +103,7 @@ struct VarInfo {
         }
     }
 
-    func decodeCall(editor: SourceZcodeCommand) -> [String] {
+    fileprivate func decodeCall(editor: SourceZcodeCommand) -> [String] {
         var v = [String]()
         v.append("\(editor.indentationString(level: 2))if let v = \(type).decode(with: aDecoder, fromKey: \"\(name)\") {")
         v.append("\(editor.indentationString(level: 3))\(name) = v")
@@ -126,7 +126,7 @@ struct VarInfo {
         return v
     }
 
-    func generateRead(nilMissing doNil: Bool, className: String, disableHouzzzLogging:Bool, editor: SourceZcodeCommand) -> [String] {
+    fileprivate func generateRead(nilMissing doNil: Bool, className: String, disableHouzzzLogging:Bool, editor: SourceZcodeCommand) -> [String] {
         guard skip == false else {
             return []
         }
@@ -169,7 +169,7 @@ struct VarInfo {
         return output
     }
 
-    func getInitParam() -> String? {
+    fileprivate func getInitParam() -> String? {
         if skip {
             return nil
         }
@@ -178,7 +178,7 @@ struct VarInfo {
         return "\(name): \(type)\(optPart)" + (defaultValue.map { " = " + $0 } ?? "")
     }
 
-    func getInitAssign() -> String {
+    fileprivate func getInitAssign() -> String {
         return "self.\(name) = \(name)"
     }
 }
@@ -194,7 +194,7 @@ private enum Function {
     case multipart
 }
 
-private class FunctionInfo {
+class FunctionInfo {
     var start: Int? = nil
     var end: Int? = nil
     var expression: String
@@ -213,7 +213,7 @@ private class FunctionInfo {
 
 
 
-private class ParseInfo {
+class ParseInfo {
     var classInheritence: [String]?
     var className: String?
     var isStruct = false
@@ -223,7 +223,7 @@ private class ParseInfo {
     var superTag: String? = nil
     var variables = [VarInfo]()
 
-    func createInitWithDict(lineIndex: Int, editor: SourceZcodeCommand) -> Int {
+    fileprivate func createInitWithDict(lineIndex: Int, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -279,7 +279,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createRead(lineIndex: Int, customLines:[String]?, editor: SourceZcodeCommand) -> Int {
+    fileprivate func createRead(lineIndex: Int, customLines:[String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         var override = ""
         if classInheritence == nil {
@@ -317,7 +317,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
+    fileprivate func createDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         var subDicts = [String]()
         var override = ""
@@ -402,7 +402,7 @@ private class ParseInfo {
         return output.count
     }
     
-    func createMultipartDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
+    fileprivate func createMultipartDictionaryRepresentation(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         var subDicts = [String]()
         var override = ""
@@ -487,7 +487,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
+    fileprivate func createInitWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         let codingOverride = !(classInheritence!.contains("NSCoding") || classInheritence!.contains("NSSecureCoding"))
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public " : "\(classAccess) "
@@ -510,7 +510,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
+    fileprivate func createEncodeWithCoder(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         let codingOverride = !(classInheritence!.contains("NSCoding") || classInheritence!.contains("NSSecureCoding"))
         let codingOverrideString = codingOverride ? "override " : ""
@@ -532,7 +532,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
+    fileprivate func createCopy(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         let codingOverride = !classInheritence!.contains("NSCopying")
         output.append("\(editor.indentationString(level: 1))\(classAccess.isEmpty ? "" : "\(classAccess) ")\(codingOverride ? "override " : "")func copy(with zone: NSZone? = nil) -> Any { // Generated")
@@ -554,7 +554,7 @@ private class ParseInfo {
         return output.count
     }
 
-    func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
+   fileprivate  func createCustomInit(lineIndex: Int, customLines: [String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         let initAccess =  classAccess == "open" ? "public " : (classAccess.isEmpty ? "" : "\(classAccess) ")
         let params = variables.compactMap { return $0.getInitParam() }.joined(separator: ", ")

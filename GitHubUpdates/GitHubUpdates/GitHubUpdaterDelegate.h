@@ -28,6 +28,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "GitHubVersion.h"
 
 @class GitHubUpdater;
 @class GitHubRelease;

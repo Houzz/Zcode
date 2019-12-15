@@ -34,7 +34,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>assertOutlets</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Assert IBOutlets</string>
+					<string>Generate: Assert IBOutlets</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
@@ -42,7 +42,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>cast</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Cast</string>
+					<string>Generate: Cast</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
@@ -50,7 +50,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>read</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Generate Cast.read</string>
+					<string>Generate: Cast.read</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
@@ -58,7 +58,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>nscoding</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Generate NSCoding</string>
+					<string>Generate: NSCoding</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
@@ -66,7 +66,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>copy</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Generate NSCopying</string>
+					<string>Generate: NSCopying</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
@@ -74,7 +74,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>customInit</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Generate init(vars....)</string>
+					<string>Generate: init(vars....)</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
@@ -82,7 +82,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>default</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Make Defaults</string>
+					<string>Generate: Make Defaults</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
@@ -90,7 +90,23 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>multipart</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Generate Multipart Dictionary</string>
+					<string>Generate: Multipart Dictionary</string>
+				</dict>
+				<dict>
+					<key>XCSourceEditorCommandClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SourceEditorCommand</string>
+					<key>XCSourceEditorCommandIdentifier</key>
+					<string>codable</string>
+					<key>XCSourceEditorCommandName</key>
+					<string>Generate: Codable</string>
+				</dict>
+				<dict>
+					<key>XCSourceEditorCommandClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SourceEditorCommand</string>
+					<key>XCSourceEditorCommandIdentifier</key>
+					<string>insertSaveState</string>
+					<key>XCSourceEditorCommandName</key>
+					<string>insert: ViewControllerSaveState funcs</string>
 				</dict>
 			</array>
 			<key>XCSourceEditorExtensionPrincipalClass</key>

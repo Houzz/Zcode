@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		051B60AC1EF559E100EE49CF /* GitHubUpdaterDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 051B60AB1EF5597D00EE49CF /* GitHubUpdaterDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		051B60D91EF630EB00EE49CF /* GitHubVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 051B60D71EF630EB00EE49CF /* GitHubVersion.h */; };
+		051B60D91EF630EB00EE49CF /* GitHubVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 051B60D71EF630EB00EE49CF /* GitHubVersion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		051B60DA1EF630EB00EE49CF /* GitHubVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 051B60D81EF630EB00EE49CF /* GitHubVersion.m */; };
 		052C708E1EF370BB000B8D06 /* GitHubInstallWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 052C708C1EF370BB000B8D06 /* GitHubInstallWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		052C708F1EF370BB000B8D06 /* GitHubInstallWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 052C708D1EF370BB000B8D06 /* GitHubInstallWindowController.m */; };

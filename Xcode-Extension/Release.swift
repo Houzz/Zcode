@@ -68,21 +68,21 @@ struct Version: Comparable {
     let element: [Int]
 
     static func < (lhs: Version, rhs: Version) -> Bool {
-        for (i,v) in lhs.element.enumerated() {
-            if v < (i < rhs.element.count ? rhs.element[i] : 0) {
-                return true
-            }
-        }
-        return rhs.element.count > lhs.element.count
+        let a1 = lhs.element + [0,0]
+        let a2 = rhs.element + [0,0]
+        let vlhs = a1[0] * 1000000 + a1[1] * 1000 + a1[2]
+        let vrhs = a2[0] * 1000000 + a2[1] * 1000 + a2[2]
+        print("\(vlhs) < \(vrhs)")
+        return vlhs < vrhs
     }
 
     static func > (lhs: Version, rhs: Version) -> Bool {
-        for (i,v) in lhs.element.enumerated() {
-            if v > (i < rhs.element.count ? rhs.element[i] : 0) {
-                return true
-            }
-        }
-        return lhs.element.count > rhs.element.count
+        let a1 = lhs.element + [0,0]
+        let a2 = rhs.element + [0,0]
+        let vlhs = a1[0] * 1000000 + a1[1] * 1000 + a1[2]
+        let vrhs = a2[0] * 1000000 + a2[1] * 1000 + a2[2]
+        print("\(vlhs) > \(vrhs)")
+        return vlhs > vrhs
     }
 
     var display: String {

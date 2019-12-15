@@ -21,6 +21,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, GitHubUpdaterDelegate {
     override init() {
         Defaults.register()
     }
+    
+    func updater(_ updater: GitHubUpdater, version v1: GitHubVersion, isNewerThanVersion v2: GitHubVersion) -> Bool {
+        var va1 = [0,0,0]
+        var va2 = [0,0,0]
+        for (idx,n) in v1.versionString.components(separatedBy: ".").enumerated() {
+            if idx < 3 {
+                va1[idx] = Int(n) ?? 0
+            }
+        }
+        for (idx,n) in v2.versionString.components(separatedBy: ".").enumerated() {
+            if idx < 3 {
+                va2[idx] = Int(n) ?? 0
+            }
+        }
+        let v1int = va1[0] * 1000000 + va1[1] * 1000 + va1[2]
+        let v2int = va2[0] * 1000000 + va2[1] * 1000 + va2[2]
+
+        return v1int > v2int
+    }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         updater.user = "houzz"
@@ -109,6 +128,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, GitHubUpdaterDelegate {
         leftView.addArrangedSubview(cast)
         let defaults = NSButton(checkboxWithTitle: "Defaults", target: nil, action: nil)
         leftView.addArrangedSubview(defaults)
+        let codable = NSButton(checkboxWithTitle: "Codable", target: nil, action: nil)
+        leftView.addArrangedSubview(codable)
 
         let stackView = NSStackView()
         stackView.alignment = .top
@@ -135,12 +156,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, GitHubUpdaterDelegate {
                     if customInit.isOn {
                         options.insert(.customInit)
                     }
-                }
+                 }
                 if assert.isOn {
                     options.insert(.assert)
                 }
                 if defaults.isOn {
                     options.insert(.defaults)
+                }
+                if codable.isOn {
+                    options.insert(.codable)
                 }
 
                 do {

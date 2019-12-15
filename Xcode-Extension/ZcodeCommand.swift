@@ -33,6 +33,8 @@ struct CommandOptions: OptionSet {
     public static let cast = CommandOptions(rawValue: 1 << 5)
     public static let defaults = CommandOptions(rawValue: 1 << 6)
     public static let multipart = CommandOptions(rawValue: 1 << 7)
+    public static let codable = CommandOptions(rawValue: 1 << 8)
+    public static let saveState = CommandOptions(rawValue: 1 << 9)
 
     public func intersects(_ a: CommandOptions) -> Bool {
         return !self.isDisjoint(with: a)

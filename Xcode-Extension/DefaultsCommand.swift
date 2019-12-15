@@ -200,7 +200,7 @@ extension SourceZcodeCommand {
     public func makeDefaults() {
         let defKeyRegex = Regex("DefaultKey\\(\"(.*)\", *type: *.([a-zA-Z]+)(?:, options: *)?(?:\\[(.*?)\\])?")
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+ *UserDefaults(.*)\\{ *$", options: [.anchorsMatchLines])
-        let signature = Regex("// zcode defaults fingerprint =")
+//        let signature = Regex("// zcode defaults fingerprint =")
         let endPattern = "// MARK: - Generated accessors"
         var className: String? = nil
         var markLine: Int? = nil

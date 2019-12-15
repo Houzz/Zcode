@@ -39,6 +39,12 @@ class SourceZcodeCommand {
         if options.contains(.defaults) {
             makeDefaults()
         }
+        if options.contains(.codable) {
+            codable()
+        }
+        if options.contains(.saveState) {
+            insertSaveState()
+        }
     }
 
     /// finish the command - must be called at end of command
@@ -105,7 +111,7 @@ class SourceZcodeCommand {
     /// iterate over all source lines
     ///
     /// - Parameter handler: Block to run on each line, the function will automatically skip comments, it gets the following parameters: the line index, the line, the current brace level and the previous line brace level and a stop flag, if set to true by the block iteration is stopped.
-    func enumerateLines(withBlock handler: (_ lineIndex: Int, _ line: String, _ braceLevel: Int, _ previousBraceLevel: Int, _ stop: inout Bool) -> Void) {
+    func enumerateLines(skipBlank: Bool = true, withBlock handler: (_ lineIndex: Int, _ line: String, _ braceLevel: Int, _ previousBraceLevel: Int, _ stop: inout Bool) -> Void) {
         var braceLevel = 0
         var previousBraceLevel = 0
         var stop = false
@@ -122,7 +128,7 @@ class SourceZcodeCommand {
                 linePos += 1
             }
             let line = source.line(linePos)
-            if line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty  {
+            if line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty && skipBlank {
                 continue
             }
 

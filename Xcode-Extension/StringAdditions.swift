@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension String {
+extension String {
 
     public subscript(index: Int) -> String {
         get {
@@ -73,11 +73,11 @@ public extension NSRange {
 }
 
 public extension String {
-    public var nsRange: NSRange {
+    var nsRange: NSRange {
         return NSRange(startIndex ..< endIndex, in: self)
     }
 
-    public var all: Range<String.Index> {
+    var all: Range<String.Index> {
         return startIndex ..< endIndex
     }
 
@@ -165,7 +165,7 @@ public extension String {
 
 
 
-fileprivate extension CharacterSet {
+ extension CharacterSet {
     fileprivate static var whitespaceAndAmpersand = CharacterSet(charactersIn: " \n\t&")
 }
 
@@ -177,7 +177,7 @@ public extension String {
 }
 
 
-public extension String {
+ extension String {
     /// Trimming string whitespace
     public var trimmed: String {
         return trimmingCharacters(in: .whitespacesAndNewlines)

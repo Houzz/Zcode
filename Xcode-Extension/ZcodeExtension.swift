@@ -54,6 +54,12 @@ class SourceEditorCommand: NSObject, XCSourceEditorCommand {
         case "multipart":
             options = .multipart
             
+        case "codable":
+            options = .codable
+            
+        case "insertSaveState":
+            options = .saveState
+            
         default:
             completionHandler(CommandError.unknown.error)
             return
