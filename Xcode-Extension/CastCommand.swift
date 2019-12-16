@@ -161,6 +161,7 @@ struct VarInfo {
                 output.append("\(editor.indentationString(level: 2))} else {")
                 if Defaults.useLogger && !disableHouzzzLogging {
                     output.append("\(editor.indentationString(level: 3))LogError(\"Error: \(className).\(name) failed init\")")
+                    output.append("\(editor.indentationString(level: 3))assert(false, \"Please open API ticket if needed\")")
                 }
                 output.append("\(editor.indentationString(level: 3))return nil")
                 output.append("\(editor.indentationString(level: 2))}")
