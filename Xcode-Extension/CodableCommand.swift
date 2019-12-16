@@ -45,6 +45,9 @@ fileprivate extension VarInfo {
                     collect.append(".nestedContainer\(opt ? "IfPresent" : "")(keyedBy: CodingKeys.self, forKey: .\(singleK))\(opt ? "?" : "")")
                 }
             }
+            if type == "String" && Defaults.nilEmptyStrings && optional {
+                collect = "nilEmpty(\(collect))"
+            }
             statements.append(collect)
         }
         output.append(statements.joined(separator: " ?? "))
