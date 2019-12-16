@@ -15,10 +15,6 @@ private enum Function {
 }
 
 fileprivate extension VarInfo {
-    func caseStatement() -> String {
-         "case \(key.joined(separator: ", "))"
-    }
-    
     func decodeStatement() -> String {
         var output = [String]()
         output.append("\(name) =")
@@ -34,12 +30,22 @@ fileprivate extension VarInfo {
         }
         var statements = [String]()
         for (idx,k) in key.enumerated() {
-            switch type {
-            case "Double", "CGFloat", "Int","String","Bool","URL":
-                statements.append("try container.decode\(type)\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(forKey: .\(k))")
-            default:
-                statements.append("try container.decode\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(\(type).self, forKey: .\(k))")
+            let splitK = k.split(separator: "/")
+            var collect = "try container"
+            for (idx2, singleK) in splitK.enumerated() {
+                if idx2 == splitK.count - 1 {
+                    switch type {
+                    case "Double", "CGFloat", "Int","String","Bool","URL":
+                        collect.append(".decode\(type)\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(forKey: .\(singleK))")
+                    default:
+                        collect.append(".decode\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(\(type).self, forKey: .\(singleK))")
+                    }
+                } else {
+                    let opt = self.key.count > 1
+                    collect.append(".nestedContainer\(opt ? "IfPresent" : "")(keyedBy: CodingKeys.self, forKey: .\(singleK))\(opt ? "?" : "")")
+                }
             }
+            statements.append(collect)
         }
         output.append(statements.joined(separator: " ?? "))
         if !useIfPresent && defaultValue != nil {
@@ -52,12 +58,21 @@ fileprivate extension VarInfo {
     }
     
     func encodeStatement() -> String {
-        switch type {
-        case "URL":
-            return "try container.encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(key[0]))"
-        default:
-            return "try container.encode\(optional ? "IfPresent": "")(\(name), forKey: .\(key[0]))"
+        var collect = "try container"
+        let items = key[0].split(separator: "/")
+        for (idx,single) in items.enumerated() {
+            if idx < items.count - 1 {
+                collect += ".nestedContainer(keyedby: CodingKeys.self, forKey: .\(single))"
+            } else {
+                switch type {
+                case "URL":
+                    collect += ".encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(single))"
+                default:
+                    collect +=  ".encode\(optional ? "IfPresent": "")(\(name), forKey: .\(single))"
+                }
+            }
         }
+        return collect
     }
 }
 
@@ -65,11 +80,15 @@ extension ParseInfo {
     fileprivate func createEnum(lineIndex: Int, customLines:[String]?, editor: SourceZcodeCommand) -> Int {
         var output = [String]()
         output.append("\(editor.indentationString(level: 1))private enum CodingKeys: String, CodingKey { // Generated")
+        var allKeys = Set<String>()
         for variable in variables {
             guard !variable.skip || (variable.isLet && variable.defaultValue != nil) else {
                 continue
             }
-            output.append("\(editor.indentationString(level: 2))\(variable.caseStatement())")
+            variable.key.forEach { $0.split(separator: "/").forEach { word in allKeys.insert(String(word)) } }
+        }
+        for key in allKeys.sorted() {
+            output.append("\(editor.indentationString(level: 2))case \(key)")
         }
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
@@ -137,7 +156,7 @@ extension ParseInfo {
         }
         if override {
             if let superTag = superTag {
-                output.append("\(editor.indentationString(level: 2))let superDecoder = try container.superDecoder(forKey: .\(superTag)")
+                output.append("\(editor.indentationString(level: 2))let superDecoder = try container.superDecoder(forKey: .\(superTag))")
                 output.append("\(editor.indentationString(level: 2))try super.init(from: superDecoder)")
             } else {
                 output.append("\(editor.indentationString(level: 2))try super.init(from: decoder)")
