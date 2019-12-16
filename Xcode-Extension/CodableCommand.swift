@@ -16,12 +16,7 @@ private enum Function {
 
 fileprivate extension VarInfo {
     func caseStatement() -> String {
-        var str = "case \(name)"
-        let key = self.key[0]
-        if key != name {
-            str += " = \"\(key)\""
-        }
-        return str
+         "case \(key.joined(separator: ", "))"
     }
     
     func decodeStatement() -> String {
@@ -37,12 +32,16 @@ fileprivate extension VarInfo {
         } else {
             useIfPresent = false
         }
-        switch type {
-        case "Double", "CGFloat", "Int","String","Bool","URL":
-            output.append("try container.decode\(type)\(self.optional || useIfPresent ? "IfPresent" : "")(forKey: .\(name))")
-        default:
-            output.append("try container.decode\(self.optional || useIfPresent ? "IfPresent" : "")(\(type).self, forKey: .\(name))")
+        var statements = [String]()
+        for (idx,k) in key.enumerated() {
+            switch type {
+            case "Double", "CGFloat", "Int","String","Bool","URL":
+                statements.append("try container.decode\(type)\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(forKey: .\(k))")
+            default:
+                statements.append("try container.decode\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(\(type).self, forKey: .\(k))")
+            }
         }
+        output.append(statements.joined(separator: " ?? "))
         if !useIfPresent && defaultValue != nil {
             output.insert("do {", at: 0)
             output.append("} catch {}")
@@ -55,9 +54,9 @@ fileprivate extension VarInfo {
     func encodeStatement() -> String {
         switch type {
         case "URL":
-            return "try container.encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(name))"
+            return "try container.encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(key[0]))"
         default:
-            return "try container.encode\(optional ? "IfPresent": "")(\(name), forKey: .\(name))"
+            return "try container.encode\(optional ? "IfPresent": "")(\(name), forKey: .\(key[0]))"
         }
     }
 }
