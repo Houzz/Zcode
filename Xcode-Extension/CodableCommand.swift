@@ -18,16 +18,6 @@ fileprivate extension VarInfo {
     func decodeStatement() -> String {
         var output = [String]()
         output.append("\(name) =")
-        let useIfPresent: Bool
-        if !isLet, let defaultV = defaultValue {
-            if defaultV.contains("[") || defaultV.contains("(") {
-                useIfPresent = false
-            } else {
-                useIfPresent = true
-            }
-        } else {
-            useIfPresent = false
-        }
         var statements = [String]()
         for (idx,k) in key.enumerated() {
             let splitK = k.split(separator: "/")
@@ -36,9 +26,9 @@ fileprivate extension VarInfo {
                 if idx2 == splitK.count - 1 {
                     switch type {
                     case "Double", "CGFloat", "Int","String","Bool","URL":
-                        collect.append(".decode\(type)\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(forKey: .\(singleK))")
+                        collect.append(".decode\(type)\(self.optional  || idx < key.count - 1 ? "IfPresent" : "")(forKey: .\(singleK))")
                     default:
-                        collect.append(".decode\(self.optional || useIfPresent || idx < key.count - 1 ? "IfPresent" : "")(\(type).self, forKey: .\(singleK))")
+                        collect.append(".decode\(self.optional  || idx < key.count - 1 ? "IfPresent" : "")(\(type).self, forKey: .\(singleK))")
                     }
                 } else {
                     let opt = self.key.count > 1
@@ -51,11 +41,9 @@ fileprivate extension VarInfo {
             statements.append(collect)
         }
         output.append(statements.joined(separator: " ?? "))
-        if !useIfPresent && defaultValue != nil {
+        if  defaultValue != nil {
             output.insert("do {", at: 0)
             output.append("} catch {}")
-        } else if let defaultV = defaultValue {
-            output.append("?? \(defaultV)")
         }
         return output.joined(separator: " ")
     }
