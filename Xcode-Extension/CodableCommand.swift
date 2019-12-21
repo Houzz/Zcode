@@ -19,6 +19,7 @@ fileprivate extension VarInfo {
         var output = [String]()
         output.append("\(name) =")
         var statements = [String]()
+        var needTry = true
         for (idx,k) in key.enumerated() {
             let splitK = k.split(separator: "/")
             var collect = "container"
@@ -37,10 +38,11 @@ fileprivate extension VarInfo {
             }
             if type == "String" && Defaults.nilEmptyStrings && optional {
                 collect = "nilEmpty(try \(collect))"
+                needTry = false
             }
             statements.append(collect)
         }
-        output.append("try \(statements.joined(separator: " ?? "))")
+        output.append("\(needTry ? "try " : "")\(statements.joined(separator: " ?? "))")
         if  defaultValue != nil {
             output.insert("do {", at: 0)
             output.append("} catch {}")
