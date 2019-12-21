@@ -68,8 +68,7 @@ extension SourceZcodeCommand {
         code.append("")
         code.append("\(indentationString(level: 1))\(accessString)\(override ? "override " : "")func saveState(to encoder: Encoder) throws {")
         code.append("\(indentationString(level: 2))var container = encoder.container(keyedBy: CodingKeys.self)")
-        code.append("\(indentationString(level: 2))// Encode view controller state here")
-        code.append("\(indentationString(level: 2))\(open)code\(close)")
+        code.append("\(indentationString(level: 2))\(open)// Encode view controller state here\(close)")
         if override {
             code.append("\(indentationString(level: 2))try super.saveState(to: encoder)")
         }
@@ -77,9 +76,8 @@ extension SourceZcodeCommand {
         code.append("")
         code.append("\(indentationString(level: 1))\(accessString)\(override ? "override " : "")func restoreState(from decoder: Decoder) throws {")
         code.append("\(indentationString(level: 2))let container = try decoder.container(keyedBy: CodingKeys.self)")
-        code.append("\(indentationString(level: 2))// Decode view controller state here")
         code.append("\(indentationString(level: 2))// View is not yet loaded, insert _ = view if need to load view")
-        code.append("\(indentationString(level: 2))\(open)code\(close)")
+        code.append("\(indentationString(level: 2))\(open)// Decode view controller state here\(close)")
         if override {
             code.append("\(indentationString(level: 2))try super.restoreState(from: decoder)")
         }
@@ -90,6 +88,9 @@ extension SourceZcodeCommand {
         code.append("\(indentationString(level: 1))\(accessString)\(override ? "override " : "")class func viewController(using decoder: Decoder) throws -> UIViewController {")
         code.append("\(indentationString(level: 2))\(open)code\(close)")
         code.append("\(indentationString(level: 1))}")
+        code.append("")
+        code.append("\(indentationString(level: 1))// Return if we should save state on this controller (can change during controller lifetime)")
+        code.append("\(indentationString(level: 1))\(accessString)\(override ? "override " : "")var shouldSaveState: Bool { true }")
         insert(code, at: index, select: false)
     }
 }

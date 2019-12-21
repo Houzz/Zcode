@@ -26,7 +26,7 @@ fileprivate extension VarInfo {
             for (idx2, singleK) in splitK.enumerated() {
                 if idx2 == splitK.count - 1 {
                     switch type {
-                    case "Double", "CGFloat", "Int","String","Bool","URL":
+                    case "Double", "CGFloat", "Int","String","Bool","URL", "UIImage", "UIColor":
                         collect.append(".decode\(type)\(self.optional  || idx < key.count - 1 ? "IfPresent" : "")(forKey: .\(singleK))")
                     default:
                         collect.append(".decode\(self.optional  || idx < key.count - 1 ? "IfPresent" : "")(\(type).self, forKey: .\(singleK))")
@@ -58,7 +58,7 @@ fileprivate extension VarInfo {
                 collect += ".nestedContainer(keyedby: CodingKeys.self, forKey: .\(single))"
             } else {
                 switch type {
-                case "URL":
+                case "URL", "UIImage", "UIColor":
                     collect += ".encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(single))"
                 default:
                     collect +=  ".encode\(optional ? "IfPresent": "")(\(name), forKey: .\(single))"
@@ -230,7 +230,15 @@ extension SourceZcodeCommand {
         for (idx,aCase) in cases.enumerated() {
             lines.append("\(indentationString(level: 2))\(aCase.caseStatement)")
             lines.append("\(indentationString(level: 3))try container.encode(\(idx), forKey: .type)")
-            lines.append("\(indentationString(level: 3))try container.encode(v, forKey: .payload)")
+            if aCase.payloadType != nil {
+                let symbol: String
+                if let name = aCase.payloadName {
+                    symbol = "\(name): "
+                } else {
+                    symbol = ""
+                }
+                lines.append("\(indentationString(level: 3))try container.encode(\(symbol)v, forKey: .payload)")
+            }
             if idx < cases.count - 1 {
                 lines.append("")
             }
