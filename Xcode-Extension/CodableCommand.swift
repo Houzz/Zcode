@@ -21,7 +21,7 @@ fileprivate extension VarInfo {
         var statements = [String]()
         for (idx,k) in key.enumerated() {
             let splitK = k.split(separator: "/")
-            var collect = "try container"
+            var collect = "container"
             for (idx2, singleK) in splitK.enumerated() {
                 if idx2 == splitK.count - 1 {
                     switch type {
@@ -36,11 +36,11 @@ fileprivate extension VarInfo {
                 }
             }
             if type == "String" && Defaults.nilEmptyStrings && optional {
-                collect = "nilEmpty(\(collect))"
+                collect = "nilEmpty(try \(collect))"
             }
             statements.append(collect)
         }
-        output.append(statements.joined(separator: " ?? "))
+        output.append("try \(statements.joined(separator: " ?? "))")
         if  defaultValue != nil {
             output.insert("do {", at: 0)
             output.append("} catch {}")
@@ -69,6 +69,9 @@ fileprivate extension VarInfo {
 
 extension ParseInfo {
     fileprivate func createEnum(lineIndex: Int, customLines:[String]?, editor: SourceZcodeCommand) -> Int {
+        if variables.isEmpty {
+            return 0
+        }
         var output = [String]()
         output.append("\(editor.indentationString(level: 1))private enum CodingKeys: String, CodingKey { // Generated")
         var allKeys = Set<String>()
@@ -97,12 +100,14 @@ extension ParseInfo {
             override = "override "
         }
         output.append("\(editor.indentationString(level: 1))\(override)\(classAccess.isEmpty ? "" : "\(classAccess == "private" ? "fileprivate" : classAccess) ")func encode(to encoder: Encoder) throws { // Generated")
-        output.append("\(editor.indentationString(level: 2))var container = encoder.container(keyedBy: CodingKeys.self)")
-        for variable in variables {
-            if variable.skip || (variable.isLet && variable.defaultValue != nil)  {
-                continue
+        if !variables.isEmpty {
+            output.append("\(editor.indentationString(level: 2))var container = encoder.container(keyedBy: CodingKeys.self)")
+            for variable in variables {
+                if variable.skip || (variable.isLet && variable.defaultValue != nil)  {
+                    continue
+                }
+                output.append("\(editor.indentationString(level: 2))\(variable.encodeStatement())")
             }
-            output.append("\(editor.indentationString(level: 2))\(variable.encodeStatement())")
         }
         if !override.isEmpty {
             output.append("\(editor.indentationString(level: 2))try super.encode(to: encoder)")
@@ -138,24 +143,28 @@ extension ParseInfo {
         }
         l.append("init(from decoder: Decoder) throws { // Generated")
         output.append("\(editor.indentationString(level: 1))\(l.joined(separator: " "))")
-        output.append("\(editor.indentationString(level: 2))let container = try decoder.container(keyedBy: CodingKeys.self)")
-        for variable in variables {
-            if variable.skip || (variable.isLet && variable.defaultValue != nil) {
-                continue
-            }
-            output.append("\(editor.indentationString(level: 2))\(variable.decodeStatement())")
-        }
-        if override {
-            if let superTag = superTag {
-                output.append("\(editor.indentationString(level: 2))let superDecoder = try container.superDecoder(forKey: .\(superTag))")
-                output.append("\(editor.indentationString(level: 2))try super.init(from: superDecoder)")
-            } else {
-                output.append("\(editor.indentationString(level: 2))try super.init(from: decoder)")
+        if !variables.isEmpty {
+            output.append("\(editor.indentationString(level: 2))let container = try decoder.container(keyedBy: CodingKeys.self)")
+            for variable in variables {
+                if variable.skip || (variable.isLet && variable.defaultValue != nil) {
+                    continue
+                }
+                output.append("\(editor.indentationString(level: 2))\(variable.decodeStatement())")
             }
         }
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
             output += customLines
+        }
+        if override {
+            if !(customLines ?? []).joined().contains("super.init") {
+                if let superTag = superTag {
+                    output.append("\(editor.indentationString(level: 2))let superDecoder = try container.superDecoder(forKey: .\(superTag))")
+                    output.append("\(editor.indentationString(level: 2))try super.init(from: superDecoder)")
+                } else {
+                    output.append("\(editor.indentationString(level: 2))try super.init(from: decoder)")
+                }
+            }
         }
         output.append("\(editor.indentationString(level: 1))}")
         editor.insert(output, at: lineIndex)
@@ -163,7 +172,90 @@ extension ParseInfo {
     }
 }
 
+struct CaseInfo {
+    let name: String
+    let payloadName: String?
+    let payloadType: String?
+    
+    init(name: String, payloadName: String?, payloadType: String?) {
+        self.name = name
+        self.payloadType = (payloadType ?? "").isEmpty ? nil : payloadType
+        if let g1 = payloadName?.components(separatedBy: " ").first, g1 != "_" && !g1.isEmpty {
+            self.payloadName = g1
+        } else {
+            self.payloadName = nil
+        }
+    }
+    
+    var caseStatement: String {
+        var s = "case .\(name)"
+        if let _ = payloadType {
+            s = "\(s)(let v)"
+        }
+        return "\(s):"
+    }
+    
+    var decodeStatement: String {
+        if let type = payloadType {
+            return "self = .\(name)(try container.decode(\(type).self, forKey: .payload))"
+        } else {
+            return "self = .\(name)"
+        }
+    }
+}
+
+class EnumInfo {
+    var cases: [CaseInfo] = []
+    var generatedRanges = [Range<Int>]()
+}
+
 extension SourceZcodeCommand {
+    private func generateKeys(cases: [CaseInfo], at line: Int) -> Int {
+        var lines = [String]()
+        lines.append("\(indentationString(level: 1))private enum CodingKeys: String, CodingKey { // Generated")
+        lines.append("\(indentationString(level: 2))case type")
+        lines.append("\(indentationString(level: 2))case payload")
+        lines.append("\(indentationString(level: 1))}")
+        insert(lines, at: line)
+        return lines.count
+    }
+    
+    private func generateEnumEncode(cases: [CaseInfo], at line: Int) -> Int {
+        var lines = [String]()
+        lines.append("\(indentationString(level: 1))public func encode(to encoder: Encoder) throws { // Generated")
+        lines.append("\(indentationString(level: 2))var container = encoder.container(keyedBy: CodingKeys.self)")
+        lines.append("\(indentationString(level: 2))switch self {")
+        for (idx,aCase) in cases.enumerated() {
+            lines.append("\(indentationString(level: 2))\(aCase.caseStatement)")
+            lines.append("\(indentationString(level: 3))try container.encode(\(idx), forKey: .type)")
+            lines.append("\(indentationString(level: 3))try container.encode(v, forKey: .payload)")
+            if idx < cases.count - 1 {
+                lines.append("")
+            }
+        }
+        lines.append("\(indentationString(level: 2))}")
+        lines.append("\(indentationString(level: 1))}")
+        insert(lines, at: line)
+        return lines.count
+    }
+    
+    private func generateEnumInit(cases: [CaseInfo], at line: Int) -> Int {
+        var lines = [String]()
+        lines.append("\(indentationString(level: 1))public init(from decoder: Decoder) throws { // Generated")
+        lines.append("\(indentationString(level: 2))let container = try decoder.container(keyedBy: CodingKeys.self)")
+        lines.append("\(indentationString(level: 2))switch try container.decode(Int.self, forKey: .type) {")
+        for (idx,aCase) in cases.enumerated() {
+            lines.append("\(indentationString(level: 2))case \(idx):")
+            lines.append("\(indentationString(level: 3))\(aCase.decodeStatement)")
+            lines.append("")
+        }
+        lines.append("\(indentationString(level: 2))default:")
+        lines.append("\(indentationString(level: 3))throw EnumDecodeError.unknownCase")
+        lines.append("\(indentationString(level: 2))}")
+        lines.append("\(indentationString(level: 1))}")
+        insert(lines, at: line)
+        return lines.count
+    }
     
     func codable() {
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
@@ -173,14 +265,17 @@ extension SourceZcodeCommand {
         let accessRegex = Regex("(public|private|internal|open)")
         let disableLogging = Regex("//! *nolog")
         let superTagRegex = Regex("//! +super +\"([^\"]+)\"")
+        let enumRegex = Regex("enum .*:.*\\bCodable\\b")
+        let caseRegex = Regex("case +([^ \\(]+)(?:\\(([^ :]*? ?(?:[^ :]*?))?:? *([^ ]+)\\))?")
         
         var parseInfo: ParseInfo?
         var startClassLine = 0
         let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
         let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
         let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
-        let signature = Regex("// zcode codable fingerprint =")
+        let signature = Regex("// zcode fingerprint =")
         let isStatic = Regex("\\b(class|static)\\b.*\\b(var|let)\\b")
+        
         
         var functions = [Function: FunctionInfo]()
         functions[.codingKeys] = FunctionInfo(expression: "private enum CodingKeys: String, CodingKey { // Generated", condition: { (_, _) -> Bool in
@@ -202,6 +297,9 @@ extension SourceZcodeCommand {
         
         var linesForChecksum = [String]()
         var signatureLine: Int? = nil
+        var enumInfo: EnumInfo? = nil
+        var startGen: Int? = nil
+        var insertFingerprint = false
         Defaults.override(.keyCase, value: CaseType.none)
         enumerateLines { (in_lineIndex, line, braceLevel, priorBraceLevel, stop) in
             var lineIndex = in_lineIndex
@@ -256,6 +354,7 @@ extension SourceZcodeCommand {
                                     _ = value.create(lineIndex + 1, info, value.custom, self)
                                 }
                             }
+                            insertFingerprint = true
                         }
                         for (key,_) in functions {
                             functions[key]?.start = nil
@@ -279,7 +378,7 @@ extension SourceZcodeCommand {
                     } else if disableLogging.match(line) {
                         info.disableHouzzzLogging = true
                         return
-                  } else if let matches: [String?] = customVarRegex.matchGroups(line) {
+                    } else if let matches: [String?] = customVarRegex.matchGroups(line) {
                         if isStatic.match(line) {
                             return
                         }
@@ -314,6 +413,31 @@ extension SourceZcodeCommand {
                         }
                     }
                 }
+            } else if let info = enumInfo {
+                switch braceLevel {
+                case 0:
+                    _ = generateEnumInit(cases: info.cases, at: lineIndex)
+                    _ = generateEnumEncode(cases: info.cases, at: lineIndex)
+                    _ = generateKeys(cases: info.cases, at: lineIndex)
+                    for range in info.generatedRanges.reversed() {
+                        deleteLines(from: range.lowerBound, to: range.upperBound + 1)
+                    }
+                    enumInfo = nil
+                case 1:
+                    if let matches = caseRegex.matchGroups(line), let name = matches[1] {
+                        info.cases.append(CaseInfo(name: name, payloadName: matches[2], payloadType: matches[3]))
+                    }
+                    if priorBraceLevel > 1, let low = startGen {
+                        startGen = nil
+                        info.generatedRanges.append(low ..< lineIndex)
+                    }
+                case 2:
+                    if line.hasSuffix("{ // Generated") {
+                        startGen = lineIndex
+                    }
+                default:
+                    break
+                }
             } else if braceLevel == 1 && priorBraceLevel == 0, let matches = classRegex.matchGroups(line) {
                 parseInfo = ParseInfo()
                 startClassLine = lineIndex
@@ -326,19 +450,23 @@ extension SourceZcodeCommand {
                 } else {
                     parseInfo?.classAccess = ""
                 }
+            } else if braceLevel == 1 && priorBraceLevel == 0, enumRegex.match(line) {
+                enumInfo = EnumInfo()
             }
         }
         
-        linesForChecksum.append("")
-        let md5 = linesForChecksum.joined(separator: "\n").md5()
-        let sigline = "// zcode codable fingerprint = \(md5)"
-        if let line = signatureLine {
-            deleteLines(from: line, to: line + 1)
-            insert([sigline], at: line)
-        } else {
-            append("\(sigline)\n")
+        if insertFingerprint {
+            linesForChecksum.append("")
+            let md5 = linesForChecksum.joined(separator: "\n").md5()
+            let sigline = "// zcode fingerprint = \(md5)"
+            if let line = signatureLine {
+                deleteLines(from: line, to: line + 1)
+                insert([sigline], at: line)
+            } else {
+                append("\(sigline)\n")
+            }
+            print(sigline)
         }
-        print(sigline)
         finish()
     }
 }
