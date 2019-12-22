@@ -106,7 +106,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>insertSaveState</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>insert: ViewControllerSaveState funcs</string>
+					<string>insert: Custom save state functions</string>
 				</dict>
 			</array>
 			<key>XCSourceEditorExtensionPrincipalClass</key>
