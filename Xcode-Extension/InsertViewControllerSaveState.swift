@@ -44,13 +44,7 @@ extension SourceZcodeCommand {
         var accessString: String = {
             switch access {
             case .none:
-                return ""
-                
-            case .some("open"):
-                return "public"
-                
-            case .some("private"):
-                return "fileprivate"
+                return "open"
                 
             case  .some(let x):
                 return x
@@ -66,7 +60,7 @@ extension SourceZcodeCommand {
         code.append("\(indentationString(level: 2))case \(open)key\(close)")
         code.append("\(indentationString(level: 1))}")
         code.append("")
-        code.append("\(indentationString(level: 1))override open func saveState(to encoder: Any) throws {")
+        code.append("\(indentationString(level: 1))override \(accessString) func saveState(to encoder: Any) throws {")
         code.append("\(indentationString(level: 2))guard let encoder = encoder as? Encoder else { return }")
         code.append("\(indentationString(level: 2))var container = encoder.container(keyedBy: CodingKeys.self)")
         code.append("\(indentationString(level: 2))\(open)Encode view controller state here\(close)")
@@ -75,7 +69,7 @@ extension SourceZcodeCommand {
         }
         code.append("\(indentationString(level: 1))}")
         code.append("")
-        code.append("\(indentationString(level: 1))override open func restoreState(from decoder: Any) throws {")
+        code.append("\(indentationString(level: 1))override \(accessString) func restoreState(from decoder: Any) throws {")
         code.append("\(indentationString(level: 2))guard let decoder = decoder as? Decoder else { return }")
         code.append("\(indentationString(level: 2))let container = try decoder.container(keyedBy: CodingKeys.self)")
         code.append("\(indentationString(level: 2))// View is not yet loaded, insert _ = view if need to load view")
@@ -88,7 +82,7 @@ extension SourceZcodeCommand {
         code.append("\(indentationString(level: 1))// return a view controller, don't call restore on it, if this is a superclass that is not supposed to be saved")
         code.append("\(indentationString(level: 1))// directly, can omit implementing this function if shouldSaveState return false")
         code.append("\(indentationString(level: 1))\(accessString)override class func viewController(using decoder: Any) throws -> UIViewController {")
-        code.append("\(indentationString(level: 2))guard let decoder = decoder as? Decoder else { return }")
+        code.append("\(indentationString(level: 2))guard let decoder = decoder as? Decoder else { throw SaveStateError(.notStateDecoder) }")
         code.append("\(indentationString(level: 2))\(open)Create view controller here\(close)")
         code.append("\(indentationString(level: 1))}")
         code.append("")

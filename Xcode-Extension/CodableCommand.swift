@@ -229,7 +229,7 @@ extension SourceZcodeCommand {
         lines.append("\(indentationString(level: 2))switch self {")
         for (idx,aCase) in cases.enumerated() {
             lines.append("\(indentationString(level: 2))\(aCase.caseStatement)")
-            lines.append("\(indentationString(level: 3))try container.encode(\(idx), forKey: .type)")
+            lines.append("\(indentationString(level: 3))try container.encode(\"\(aCase.name)\", forKey: .type)")
             if aCase.payloadType != nil {
                 let symbol: String
                 if let name = aCase.payloadName {
@@ -253,9 +253,9 @@ extension SourceZcodeCommand {
         var lines = [String]()
         lines.append("\(indentationString(level: 1))public init(from decoder: Decoder) throws { // Generated")
         lines.append("\(indentationString(level: 2))let container = try decoder.container(keyedBy: CodingKeys.self)")
-        lines.append("\(indentationString(level: 2))switch try container.decode(Int.self, forKey: .type) {")
-        for (idx,aCase) in cases.enumerated() {
-            lines.append("\(indentationString(level: 2))case \(idx):")
+        lines.append("\(indentationString(level: 2))switch try container.decode(String.self, forKey: .type) {")
+        for aCase in cases {
+            lines.append("\(indentationString(level: 2))case \"\(aCase.name)\":")
             lines.append("\(indentationString(level: 3))\(aCase.decodeStatement)")
             lines.append("")
         }
