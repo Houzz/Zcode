@@ -42,7 +42,7 @@ class Defaults {
         case keyCase
         case useLogger
     }
-    private static var sessionValue = [Keys: Any]()
+    public static var sessionOverride = [Keys: Any]()
 
     public class func register() {
         let def: [String: Any] = [
@@ -53,13 +53,9 @@ class Defaults {
         userDefaults.register(defaults: def)
     }
 
-    public class func override(_ key: Keys, value: Any) {
-        sessionValue[key] = value
-    }
-
     static var nilEmptyStrings: Bool {
         get {
-            return sessionValue[.nilStrings] as? Bool ?? userDefaults.bool(forKey: "nil")
+            return sessionOverride[.nilStrings] as? Bool ?? userDefaults.bool(forKey: "nil")
         }
         set {
             userDefaults.set(newValue, forKey: "nil")
@@ -68,7 +64,7 @@ class Defaults {
 
     static var keyCase: CaseType {
         get {
-            return sessionValue[.keyCase] as? CaseType ?? CaseType(rawValue: userDefaults.object(forKey: "case") as? String ?? "none")!
+            return sessionOverride[.keyCase] as? CaseType ?? CaseType(rawValue: userDefaults.object(forKey: "case") as? String ?? "none")!
         }
         set {
             userDefaults.set(newValue.rawValue, forKey: "case")
@@ -77,7 +73,7 @@ class Defaults {
 
     static var useLogger: Bool {
         get {
-            return sessionValue[.useLogger] as? Bool ?? userDefaults.bool(forKey: "logger")
+            return sessionOverride[.useLogger] as? Bool ?? userDefaults.bool(forKey: "logger")
         }
         set {
             userDefaults.set(newValue, forKey: "logger")

@@ -657,11 +657,11 @@ extension SourceZcodeCommand {
                 }
             } else if braceLevel == 0 {
                 if let matches: [String?] = caseCommand.matchGroups(line), let type = CaseType(rawValue: matches[1]?.lowercased() ?? "") {
-                    Defaults.override(.keyCase, value: type)
+                    Defaults.sessionOverride[.keyCase] = type
                 } else if let matches: [String?] = logCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
-                    Defaults.override(.useLogger, value: v)
+                    Defaults.sessionOverride[.useLogger] = v
                 } else if let matches: [String?] = nilCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
-                    Defaults.override(.nilStrings, value: v)
+                    Defaults.sessionOverride[.nilStrings] = v
                 } else if signature.match(line) {
                     signatureLine = lineIndex
                 }

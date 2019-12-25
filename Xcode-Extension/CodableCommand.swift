@@ -310,7 +310,11 @@ extension SourceZcodeCommand {
         var enumInfo: EnumInfo? = nil
         var startGen: Int? = nil
         var insertFingerprint = false
-        Defaults.override(.keyCase, value: CaseType.none)
+        let prev = Defaults.sessionOverride[.keyCase]
+        defer {
+            Defaults.sessionOverride[.keyCase] = prev
+        }
+        Defaults.sessionOverride[.keyCase] = CaseType.none
         enumerateLines { (in_lineIndex, line, braceLevel, priorBraceLevel, stop) in
             var lineIndex = in_lineIndex
             if braceLevel > 1 {
@@ -326,11 +330,11 @@ extension SourceZcodeCommand {
                 }
             } else if braceLevel == 0 {
                 if let matches: [String?] = caseCommand.matchGroups(line), let type = CaseType(rawValue: matches[1]?.lowercased() ?? "") {
-                    Defaults.override(.keyCase, value: type)
+                    Defaults.sessionOverride[.keyCase] = type
                 } else if let matches: [String?] = logCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
-                    Defaults.override(.useLogger, value: v)
+                    Defaults.sessionOverride[.useLogger] = v
                 } else if let matches: [String?] = nilCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
-                    Defaults.override(.nilStrings, value: v)
+                    Defaults.sessionOverride[.nilStrings] = v
                 } else if signature.match(line) {
                     signatureLine = lineIndex
                 }
