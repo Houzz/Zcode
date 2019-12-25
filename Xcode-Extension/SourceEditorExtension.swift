@@ -21,6 +21,7 @@ class SourceEditorExtension: NSObject, XCSourceEditorExtension {
 
     func extensionDidFinishLaunching() {
         Defaults.register()
+        Defaults.sessionOverride = [:]
         if let latest = checkForUpdate() {
             SourceEditorExtension.updateMessage = "Please update to version \(latest.version.display) from https://github.com/houzz/zcode/releases or launch the Zcode app to update"
         } else {

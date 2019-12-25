@@ -30,6 +30,8 @@ class SourceZcodeCommand {
     }
 
     func perform() {
+        Defaults.sessionOverride = [:]
+
         if options.contains(.assert) {
             assertOutlets()
         }
