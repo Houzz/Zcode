@@ -10,7 +10,7 @@ import Foundation
 import CommonCrypto
 let startReadCustomPattern = "// Add custom code after this comment"
 
-extension String {
+public extension String {
     func snakeCased() -> String {
         let pattern = "([a-z0-9])([A-Z])"
         let regex = try! NSRegularExpression(pattern: pattern, options: [])
@@ -30,6 +30,24 @@ extension String {
         case .upper:
             return "\(trimmedKey[0].uppercased())\(trimmedKey[1 ..< trimmedKey.count])"
 
+        case .snake:
+            return trimmedKey.snakeCased()
+
+        case .screamingSnake:
+            return trimmedKey.snakeCased().uppercased()
+        }
+    }
+    
+    var dictionaryKey: String {
+        let trimmedKey: String = trimmingCharacters(in: CharacterSet.whitespaces)
+        guard Defaults.keyCase != Defaults.dictionaryCase else {
+            return self
+        }
+        switch Defaults.dictionaryCase {
+        case .none:
+            return "\(trimmedKey[0].lowercased())\(trimmedKey[1 ..< trimmedKey.count])"
+        case .upper:
+            return "\(trimmedKey[0].uppercased())\(trimmedKey[1 ..< trimmedKey.count])"
         case .snake:
             return trimmedKey.snakeCased()
 
@@ -345,7 +363,7 @@ class ParseInfo {
                 continue;
             }
             let optStr = variable.optional ? "?" : ""
-            let keys = variable.key.first!.components(separatedBy: "/")
+            let keys = variable.key.first!.components(separatedBy: "/").map { $0.dictionaryKey }
             var sameHeirarchy = true
             for (idx, key) in keys.enumerated() {
                 let dName = (idx == 0) ? "dict" : "dict\(idx)"
@@ -594,6 +612,7 @@ extension SourceZcodeCommand {
         let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
         let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
         let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
+        let dictCaseCommand = Regex("//! *zcode: +dictionary *case +([a-z]+)", options: [.caseInsensitive])
         let signature = Regex("// zcode fingerprint =")
         let isStatic = Regex("\\b(class|static)\\b.*\\b(var|let)\\b")
 
@@ -658,6 +677,8 @@ extension SourceZcodeCommand {
             } else if braceLevel == 0 {
                 if let matches: [String?] = caseCommand.matchGroups(line), let type = CaseType(rawValue: matches[1]?.lowercased() ?? "") {
                     Defaults.sessionOverride[.keyCase] = type
+                } else if let matches: [String?] = dictCaseCommand.matchGroups(line), let type = CaseType(rawValue: matches[1]?.lowercased() ?? "") {
+                    Defaults.sessionOverride[.dictionaryCase] = type
                 } else if let matches: [String?] = logCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
                     Defaults.sessionOverride[.useLogger] = v
                 } else if let matches: [String?] = nilCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {

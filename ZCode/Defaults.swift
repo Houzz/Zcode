@@ -41,6 +41,7 @@ class Defaults {
         case nilStrings
         case keyCase
         case useLogger
+        case dictionaryCase
     }
     public static var sessionOverride = [Keys: Any]()
 
@@ -77,6 +78,15 @@ class Defaults {
         }
         set {
             userDefaults.set(newValue, forKey: "logger")
+        }
+    }
+    
+    static var dictionaryCase: CaseType {
+        get {
+            return sessionOverride[.dictionaryCase] as? CaseType ?? CaseType(rawValue: userDefaults.object(forKey: "case") as? String ?? "") ?? sessionOverride[.keyCase] as? CaseType ?? CaseType(rawValue: userDefaults.object(forKey: "case") as? String ?? "none")!
+        }
+        set {
+            userDefaults.set(newValue.rawValue, forKey: "case")
         }
     }
 
