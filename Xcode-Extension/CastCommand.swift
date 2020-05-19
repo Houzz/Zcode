@@ -370,7 +370,13 @@ class ParseInfo {
             for (idx, key) in keys.enumerated() {
                 let dName = (idx == 0) ? "dict" : "dict\(idx)"
                 if idx == keys.count - 1 {
-                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(key)\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
+                    if variable.isMsec && variable.optional {
+                        output.append("\(editor.indentationString(level: 2))if let v = \(variable.name) {")
+                        output.append("\(editor.indentationString(level: 3))\(dName)[\"\(key)\"] = Int(\(variable.name).timeIntervalSince1970 * 1000)")
+                        output.append("\(editor.indentationString(level: 2))}")
+                    } else {
+                        output.append("\(editor.indentationString(level: 2))\(dName)[\"\(key)\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
+                    }
 
                     for idx2 in (0 ..< idx).reversed() {
                         let idx3 = idx2 + 1
@@ -455,7 +461,13 @@ class ParseInfo {
             for (idx, key) in keys.enumerated() {
                 let dName = (idx == 0) ? "dict" : "dict\(idx)"
                 if idx == keys.count - 1 {
-                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(className!.lowercased())[\(key)]\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
+                    if variable.isMsec && variable.optional {
+                        output.append("\(editor.indentationString(level: 2))if let v = \(variable.name) {")
+                        output.append("\(editor.indentationString(level: 3))\(dName)[\"\(className!.lowercased())[\(key)]\"] = Int(\(variable.name).timeIntervalSince1970 * 1000)")
+                        output.append("\(editor.indentationString(level: 2))}")
+                    } else {
+                        output.append("\(editor.indentationString(level: 2))\(dName)[\"\(className!.lowercased())[\(key)]\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
+                    }
                     
                     for idx2 in (0 ..< idx).reversed() {
                         let idx3 = idx2 + 1
