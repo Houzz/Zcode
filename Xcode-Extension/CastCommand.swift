@@ -84,8 +84,9 @@ struct VarInfo {
     let useCustomParse: Bool
     let skip: Bool
     let className: String
+    let isMsec: Bool
 
-    init(name: String, isLet: Bool, type: String, defaultValue: String? = nil, asIsKey: Bool, key in_key: String? = nil, useCustom: Bool = false, skip: Bool = false, className: String) {
+    init(name: String, isLet: Bool, type: String, defaultValue: String? = nil, asIsKey: Bool, key in_key: String? = nil, useCustom: Bool = false, skip: Bool = false, className: String, isMsec: Bool = false) {
         self.name = name
         self.isLet = isLet
         self.skip = skip
@@ -105,6 +106,7 @@ struct VarInfo {
             $0.components(separatedBy: "/").map { $0.jsonKey(asIs: asIsKey) }.joined(separator:"/")
         }
         self.defaultValue = defaultValue
+        self.isMsec = isMsec
     }
 
     fileprivate var encodeCall: String {
@@ -357,7 +359,7 @@ class ParseInfo {
                 output.append("\(editor.indentationString(level: 2))var dict = super.dictionaryRepresentation()")
             }
         }
-
+        
         for variable in variables {
             if variable.skip {
                 continue;
@@ -368,7 +370,7 @@ class ParseInfo {
             for (idx, key) in keys.enumerated() {
                 let dName = (idx == 0) ? "dict" : "dict\(idx)"
                 if idx == keys.count - 1 {
-                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(key)\"] = \(variable.name)\(optStr).jsonValue")
+                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(key)\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
 
                     for idx2 in (0 ..< idx).reversed() {
                         let idx3 = idx2 + 1
@@ -453,7 +455,7 @@ class ParseInfo {
             for (idx, key) in keys.enumerated() {
                 let dName = (idx == 0) ? "dict" : "dict\(idx)"
                 if idx == keys.count - 1 {
-                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(className!.lowercased())[\(key)]\"] = \(variable.name)\(optStr).jsonValue")
+                    output.append("\(editor.indentationString(level: 2))\(dName)[\"\(className!.lowercased())[\(key)]\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
                     
                     for idx2 in (0 ..< idx).reversed() {
                         let idx3 = idx2 + 1
@@ -597,6 +599,7 @@ class ParseInfo {
 extension SourceZcodeCommand {
 
     func cast(command: CommandOptions) {
+        let msec = Regex("//!.*msec", options: [.caseInsensitive])
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+(.*)\\{ *$", options: [.anchorsMatchLines])
         let varRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *\\{* *(?://! *(?:= *([^ ]+))? *(?:(v?)\"([^\"]+)\")?)?")
         let customVarRegex = Regex("(var|let) +([^: ]+?) *: *([^ ]+) *//! *(?:= *([^ ]+))? *custom")
@@ -760,13 +763,13 @@ extension SourceZcodeCommand {
                             return
                         }
                         linesForChecksum.append(line)
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, skip: skipForJSON.match(line), className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: false, key: nil, useCustom: true, skip: skipForJSON.match(line), className: info.className!, isMsec: msec.match(line)))
                     } else if let matches: [String?] = varRegex.matchGroups(line) {
                         if isStatic.match(line) {
                             return
                         }
                         linesForChecksum.append(line)
-                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, skip: skipForJSON.match(line), className: info.className!))
+                        info.variables.append(VarInfo(name: matches[2]!, isLet: matches[1]! == "let", type: matches[3]!, defaultValue: matches[4], asIsKey: !(matches[5]?.isEmpty ?? true), key: matches[6], useCustom: false, skip: skipForJSON.match(line), className: info.className!, isMsec: msec.match(line)))
                     } else if let matches: [String?] = superTagRegex.matchGroups(line) {
                         if let str = matches[1] {
                             info.superTag = str
