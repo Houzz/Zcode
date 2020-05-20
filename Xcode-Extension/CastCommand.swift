@@ -106,7 +106,7 @@ struct VarInfo {
             $0.components(separatedBy: "/").map { $0.jsonKey(asIs: asIsKey) }.joined(separator:"/")
         }
         self.defaultValue = defaultValue
-        self.isMsec = isMsec
+        self.isMsec = isMsec && type.hasPrefix("Date")
     }
 
     fileprivate var encodeCall: String {
