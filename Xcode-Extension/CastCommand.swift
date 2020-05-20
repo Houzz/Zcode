@@ -372,7 +372,7 @@ class ParseInfo {
                 if idx == keys.count - 1 {
                     if variable.isMsec && variable.optional {
                         output.append("\(editor.indentationString(level: 2))if let v = \(variable.name) {")
-                        output.append("\(editor.indentationString(level: 3))\(dName)[\"\(key)\"] = Int(\(variable.name).timeIntervalSince1970 * 1000)")
+                        output.append("\(editor.indentationString(level: 3))\(dName)[\"\(key)\"] = Int(v.timeIntervalSince1970 * 1000)")
                         output.append("\(editor.indentationString(level: 2))}")
                     } else {
                         output.append("\(editor.indentationString(level: 2))\(dName)[\"\(key)\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
@@ -463,7 +463,7 @@ class ParseInfo {
                 if idx == keys.count - 1 {
                     if variable.isMsec && variable.optional {
                         output.append("\(editor.indentationString(level: 2))if let v = \(variable.name) {")
-                        output.append("\(editor.indentationString(level: 3))\(dName)[\"\(className!.lowercased())[\(key)]\"] = Int(\(variable.name).timeIntervalSince1970 * 1000)")
+                        output.append("\(editor.indentationString(level: 3))\(dName)[\"\(className!.lowercased())[\(key)]\"] = Int(v.timeIntervalSince1970 * 1000)")
                         output.append("\(editor.indentationString(level: 2))}")
                     } else {
                         output.append("\(editor.indentationString(level: 2))\(dName)[\"\(className!.lowercased())[\(key)]\"] = \(variable.isMsec ? "Int(" : "")\(variable.name)\(optStr).\(variable.isMsec ? "timeIntervalSince1970 * 1000)" : "jsonValue")")
