@@ -38,6 +38,13 @@ public class Regex {
             return nil
         }
     }
+    
+    public func match(_ input: String, group: Int) -> String? {
+        if let groups = matchGroups(input), groups.count > group {
+            return groups[group]
+        }
+        return nil
+    }
 
     public func match(_ input: String) -> Bool {
         match = expression.firstMatch(in: input, options: NSRegularExpression.MatchingOptions(rawValue: 0), range: NSMakeRange(0, input.count))
