@@ -14,6 +14,7 @@ struct DefaultKey {
         case int
         case bool
         case float
+        case double
         case dict
         case stringArray
         case dictArray
@@ -31,6 +32,9 @@ struct DefaultKey {
 
             case "float":
                 self = .float
+                
+            case "double":
+                self = .double
 
             case "dict":
                 self = .dict
@@ -129,7 +133,7 @@ extension DefaultKey {
     }
     var isOptional: Bool {
         switch type {
-        case .bool, .int, .float:
+        case .bool, .int, .float, .double:
             return false
 
         default:
@@ -149,6 +153,9 @@ extension DefaultKey {
 
         case .int:
             return "integer(forKey: \"\(prefKey)\")"
+
+        case .double:
+            return "double(forKey: \"\(prefKey)\")"
 
         case .url:
             return "URL(string: object(forKey: \"\(prefKey)\") as? String ?? \"\")\(isOptional ? "" : "!")"
@@ -177,6 +184,8 @@ extension DefaultKey.DefaultType {
             return "Bool"
         case .int:
             return "Int"
+        case .double:
+            return "Double"
         case .float:
             return "Float"
         case .date:
