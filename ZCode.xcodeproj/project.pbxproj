@@ -49,6 +49,8 @@
 		E4DBE9A720C2B24000C414E5 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4DBE9A520C2B24000C414E5 /* Extensions.swift */; };
 		E4FB0C9E23942B6F001DA69D /* CodableCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FB0C9D23942B6F001DA69D /* CodableCommand.swift */; };
 		E4FB0C9F23942B6F001DA69D /* CodableCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FB0C9D23942B6F001DA69D /* CodableCommand.swift */; };
+		F1BB91DC2562741900663068 /* XcodeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E435653E209302980019367A /* XcodeKit.framework */; };
+		F1BB91DD2562741900663068 /* XcodeKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E435653E209302980019367A /* XcodeKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +107,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F1BB91DE2562741900663068 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F1BB91DD2562741900663068 /* XcodeKit.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -156,6 +169,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E414C50D1FADE24E0083C242 /* Cocoa.framework in Frameworks */,
+				F1BB91DC2562741900663068 /* XcodeKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,6 +286,7 @@
 				E414C5061FADE24D0083C242 /* Sources */,
 				E414C5071FADE24D0083C242 /* Frameworks */,
 				E414C5081FADE24D0083C242 /* Resources */,
+				F1BB91DE2562741900663068 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -611,6 +626,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "Xcode-Extension/AssertOutlets.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = "${build}";
@@ -630,6 +646,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "Xcode-Extension/AssertOutlets.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = "${build}";
