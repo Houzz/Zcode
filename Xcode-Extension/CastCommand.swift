@@ -630,8 +630,8 @@ extension SourceZcodeCommand {
         let signature = Regex("// zcode fingerprint =")
         let isStatic = Regex("\\b(class|static)\\b.*\\b(var|let)\\b")
         let hasDefault = Regex("//!.*= *([^ ]+)")
-        let hasKeyNoDefault = Regex("//![^=]*?(v?)\"([^ ]+)\"", options: [.caseInsensitive])
-        let hasKeyWithDefault = Regex("//!.*= *[^ ]+ *(v?)\"([^ ]+)\"", options: [.caseInsensitive])
+        let hasKeyNoDefault = Regex("//![^=]*?(v?)\"([ \\S]+)\"", options: [.caseInsensitive])
+        let hasKeyWithDefault = Regex("//!.*= *[^ ]+ *(v?)\"([ \\S]+)\"", options: [.caseInsensitive])
         func matchKey(_ input: String, group: Int) -> String? {
             hasKeyNoDefault.match(input, group: group) ?? hasKeyWithDefault.match(input, group: group)
         }
