@@ -12,7 +12,7 @@ Zcode is an Xcode plugin designed to prevent human errors when implementing mult
   - [Generate: Cast read](#generate-cast-read)
   - [Generate: NSCoding](#generate-nscoding)
   - [Generate: NSCopying](#generate-nscopying)
-  - [Generate: init(vars..)](#generate-init-vars)
+  - [Generate: Init](#generate-init)
   - [Generate: Make Defaults](#generate-make-defaults)
   - [Generate: Multipart Dictionary](#generate-multipart-dictionary)
   - [Generate: Codable](#generate-codable)
@@ -234,7 +234,7 @@ class Person: NSCoding, NSCopying {
     }
 }
 ```
-### Generate: init(vars..)
+### Generate: Init
 This command creates an initializer for your entity, based on it's properties.
 You can use the default value Zcode comments from [Cast](#generate-cast) to define default values in the initializer.
 ```swift
