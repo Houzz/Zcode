@@ -94,7 +94,7 @@ class Demo: NSObject, DictionaryConvertible {
 }
 ```
   
-**Zcode Comments:**  
+# Zcode Comments: #  
 To enhance the power of Cast, you can apply your customization using special Zcode comments, maked with the prefix ` //! `  
 Given the following demo JSON:
 ```json
@@ -122,7 +122,49 @@ let name: String //! = "Anonymous" "User/FullName"
 let name: String //! = "Anonymous" "User/FullName ?? User/Nickname"
 ```
 5. `//! ignore` - This comment will tell Zcode to ignore everything regarding this property, and you will have to add your implementation manually after generating the code.  
-**Warning:** Running Cast after adding code manually may override your code, so it's recommended do add it after running Cast.
+6. `//! ignore json` - This comment will prevent Zcode from handling this property in `dictionaryRepresentation()` and `nit?(dictionary dict: JSONDictionary)` but it will be included in different protocols such as NSSecureCoding, Codable, etc..
+7. `//! custom` - Will automatically call a static parsing function called parse<property name> - which you will have to implement manually.
+8. Top of the file comments:
+	8.1 `//! zcode: case camelCase` - will parse the JSON properties in **camelCase** 
+	8.2 `//! zcode: case CamelCase` - will parse the JSON properties in **CamelCase** 
+	8.3 `//! zcode: case screamingSnake` - Will parse the JSON properties in **screaming snake case** (mix of upper case and snake case). e.g `PROJECT_OWNER`
+	8.4 `//! zcode: emptyIsNil on/off` - Will treat empty strings as nil
+	8.5 `//! zcode: logger off`
+9. Zcode generates a unique fingerprint based on the current code, if you change your property types or modify the class, the fingerprint will update after you run the Cast command.  
+	9.1 Zcode contains a pre-commit hook, and it make sure that you ran the cast command after modifying your entity. If you forget to run Cast, your code 	     will not be committed and a notification will be shown
+	
+If you'd like to add some custom behavior prior initialization of your entity, you should implement `awake(with dictionary: JSONDictionary)` and return true/false representing if this property should be initialized or not
+```swift
+class Demo: NSObject, DictionaryConvertible {
+    let dueDate: Date
+
+    func dictionaryRepresentation() -> [String: Any] { // Generated
+        var dict = [String: Any]()
+        dict["DueDate"] = dueDate.jsonValue
+        // Add custom code after this comment
+        return dict
+    }
+
+    required init?(dictionary dict: JSONDictionary) { // Generated
+        if let v: Date = dict.value(for: "DueDate") {
+            dueDate = v
+        } else {
+            LogError("Error: Demo.dueDate failed init")
+            assert(false, "Please open API ticket if needed")
+            return nil
+        }
+        super.init()
+        if !awake(with: dict) {
+            return nil
+        }
+    }
+
+    func awake(with dictionary: JSONDictionary) -> Bool {
+        dueDate < Date() // Due date has not passed yet
+    }
+    
+}
+```
 
 We'd like to parse a `Person` object with data based from the JSON above. We can use the power of Zcode comments to our advantage:
 ```swift
