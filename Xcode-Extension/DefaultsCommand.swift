@@ -103,6 +103,13 @@ struct DefaultKey {
         static public let objc = Option(rawValue: 1 << 3) /// make accessors @objc
         static public let manual = Option(rawValue: 1 << 4) /// accessor is generated manually
     }
+
+    public enum Scope: String {
+        case pro
+        case consumer
+        case common
+    }
+
     /// Name of property
     public let name: String
     /// Type of property
@@ -114,22 +121,27 @@ struct DefaultKey {
     /// key name in api response
     public let key: String?
 
-    public init(_ name: String, type: DefaultType, options: Option = .none, default value: Any? = nil, key: String? = nil) {
+    public let scope: Scope
+
+    public init(_ name: String, type: DefaultType, options: Option = .none, default value: Any? = nil, key: String? = nil, scope: Scope) {
         self.name = name
         self.type = type
         self.options = options
         self.default = value
         self.key = key
+        self.scope = scope
     }
 }
 
 
 extension DefaultKey {
     var prefKey: String {
+        let prefix = scope != .common ? (scope.rawValue + ".") : ""
         if options.contains(.api) {
-            return name[0].uppercased() + name[1...]
+            return prefix + name[0].uppercased() + name[1...]
         }
-        return name
+
+        return prefix + name
     }
     var isOptional: Bool {
         switch type {
@@ -207,7 +219,7 @@ extension DefaultKey.DefaultType {
 
 extension SourceZcodeCommand {
     public func makeDefaults() {
-        let defKeyRegex = Regex("DefaultKey\\(\"(.*)\", *type: *.([a-zA-Z]+)(?:, options: *)?(?:\\[(.*?)\\])?")
+        let defKeyRegex = Regex("DefaultKey\\(\"(.*)\", *type: *.([a-zA-Z]+)(?:, options: *)?(?:\\[(.*?)\\](?:, scope: *)?.(common|consumer|pro))?")
         let classRegex = Regex("(class|struct) +([^ :]+)[ :]+ *UserDefaults(.*)\\{ *$", options: [.anchorsMatchLines])
 //        let signature = Regex("// zcode defaults fingerprint =")
         let endPattern = "// MARK: - Generated accessors"
@@ -226,10 +238,15 @@ extension SourceZcodeCommand {
                 }
 
             case 1...2:
-                if let groups = defKeyRegex.matchGroups(line), let name = groups[1], let type = groups[2] {
+                if let groups = defKeyRegex.matchGroups(line),
+                    let name = groups[1],
+                    let type = groups[2],
+                    let scopeRawValue = groups[4],
+                    let scope = DefaultKey.Scope(rawValue: scopeRawValue) {
                     linesForChecksum.append(line)
                     let d = line.contains("default:") && !line.contains("default: nil") ? "x" : nil
-                    vars.append(DefaultKey(name, type: DefaultKey.DefaultType(string: type), options: DefaultKey.Option(string: groups[3]), default: d, key: nil))
+
+                    vars.append(DefaultKey(name, type: DefaultKey.DefaultType(string: type), options: DefaultKey.Option(string: groups[3]), default: d, key: nil, scope: scope))
                 }
 
             default:
