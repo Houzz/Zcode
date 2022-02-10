@@ -593,7 +593,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ZCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MARKETING_VERSION = 4.0.6;
+				MARKETING_VERSION = "${version}";
 				OTHER_SWIFT_FLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -614,7 +614,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = ZCode/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MARKETING_VERSION = 4.0.6;
+				MARKETING_VERSION = "${version}";
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.houzz.Zcode;
 				PRODUCT_NAME = "$(TARGET_NAME)";
