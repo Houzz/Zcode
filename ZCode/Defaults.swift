@@ -40,6 +40,7 @@ class Defaults {
     public enum Keys {
         case nilStrings
         case keyCase
+        case owner
         case useLogger
         case dictionaryCase
     }
@@ -69,6 +70,15 @@ class Defaults {
         }
         set {
             userDefaults.set(newValue.rawValue, forKey: "case")
+        }
+    }
+    
+    static var owner: String? {
+        get {
+            return sessionOverride[.owner] as? String
+        }
+        set {
+            sessionOverride[.owner] = newValue
         }
     }
 

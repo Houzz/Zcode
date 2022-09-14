@@ -180,8 +180,12 @@ struct VarInfo {
                 output.removeLast()
                 output.append("\(editor.indentationString(level: 2))} else {")
                 if Defaults.useLogger && !disableHouzzzLogging {
-                    output.append("\(editor.indentationString(level: 3))LogError(\"Error: \(className).\(name) failed init\")")
-                    output.append("\(editor.indentationString(level: 3))assert(false, \"Please open API ticket if needed\")")
+                    if let owner = Defaults.owner {
+                        output.append("\(editor.indentationString(level: 3))LogError(.undefinedBehaviour, .\(owner), \"Error: \(className).\(name) failed init\")")
+                    } else {
+                        output.append("\(editor.indentationString(level: 3))LogError(\"Error: \(className).\(name) failed init\")")
+                    }
+                    output.append("\(editor.indentationString(level: 3))assertionFailure(\"Please open API ticket if needed\")")
                 }
                 output.append("\(editor.indentationString(level: 3))return nil")
                 output.append("\(editor.indentationString(level: 2))}")
@@ -624,6 +628,7 @@ extension SourceZcodeCommand {
         var parseInfo: ParseInfo?
         var startClassLine = 0
         let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
+        let ownerCommand = Regex("//! *zcode: +owner +([a-z]+)", options: [.caseInsensitive])
         let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
         let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
         let dictCaseCommand = Regex("//! *zcode: +dictionary *case +([a-z]+)", options: [.caseInsensitive])
@@ -703,10 +708,12 @@ extension SourceZcodeCommand {
                     Defaults.sessionOverride[.useLogger] = v
                 } else if let matches: [String?] = nilCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
                     Defaults.sessionOverride[.nilStrings] = v
+                } else if let matches: [String?] = ownerCommand.matchGroups(line), let owner = matches[1] {
+                    Defaults.owner = owner
                 } else if signature.match(line) {
                     signatureLine = lineIndex
                 }
-
+                
             }
             
             if let info = parseInfo {

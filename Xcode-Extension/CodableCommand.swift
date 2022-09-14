@@ -281,6 +281,7 @@ extension SourceZcodeCommand {
         var parseInfo: ParseInfo?
         var startClassLine = 0
         let caseCommand = Regex("//! *zcode: +case +([a-z]+)", options: [.caseInsensitive])
+        let ownerCommand = Regex("//! *zcode: +owner +([a-z]+)", options: [.caseInsensitive])
         let logCommand = Regex("//! *zcode: +logger +(on|off|true|false)", options: [.caseInsensitive])
         let nilCommand = Regex("//! *zcode: +emptyisnil +(on|off|true|false)", options: [.caseInsensitive])
         let signature = Regex("// zcode fingerprint =")
@@ -335,6 +336,8 @@ extension SourceZcodeCommand {
                     Defaults.sessionOverride[.useLogger] = v
                 } else if let matches: [String?] = nilCommand.matchGroups(line), let v = Bool(onoff: matches[1] ?? "") {
                     Defaults.sessionOverride[.nilStrings] = v
+                } else if let matches: [String?] = ownerCommand.matchGroups(line), let owner = matches[1] {
+                    Defaults.owner = owner
                 } else if signature.match(line) {
                     signatureLine = lineIndex
                 }
