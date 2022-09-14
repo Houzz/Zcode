@@ -405,3 +405,17 @@ class DemoViewController: UIViewController {
 
 }
 ```
+
+# Deploying a new version
+* update `Config.xcconfig` with the new build and config numbers
+* create a new tag with the version name
+* on your local machine, archive the zcode project
+* select "Distribute" using "Development" option
+<img width="1017" alt="image" src="https://user-images.githubusercontent.com/20025111/190116691-f634abe7-61f8-4b97-893d-bf52b8f66b61.png">
+* select "Automatically sign" option
+<img width="741" alt="image" src="https://user-images.githubusercontent.com/20025111/190117019-d05ee290-4a67-4849-b90f-d7a73a3268eb.png">
+* compress the generated `Zcode.app` app into `Zcode.zip`
+* create a new release using https://github.com/Houzz/Zcode/releases/new
+* the new release title is the version number
+* drag the zip file into the release and publish!
+
