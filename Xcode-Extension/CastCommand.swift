@@ -180,11 +180,7 @@ struct VarInfo {
                 output.removeLast()
                 output.append("\(editor.indentationString(level: 2))} else {")
                 if Defaults.useLogger && !disableHouzzzLogging {
-                    if let owner = Defaults.owner {
-                        output.append("\(editor.indentationString(level: 3))LogError(.assertionFailure, .\(owner), \"Error: \(className).\(name) failed init\")")
-                    } else {
-                        output.append("\(editor.indentationString(level: 3))LogError(\"Error: \(className).\(name) failed init\")")
-                    }
+                    output.append("\(editor.indentationString(level: 3))LogError(.assertionFailure, .\(Defaults.owner ?? "infraTeam"), \"Error: \(className).\(name) failed init\")")
                     output.append("\(editor.indentationString(level: 3))assertionFailure(\"Please open API ticket if needed\")")
                 }
                 output.append("\(editor.indentationString(level: 3))return nil")
