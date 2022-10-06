@@ -419,3 +419,15 @@ class DemoViewController: UIViewController {
 * the new release title is the version number
 * drag the zip file into the release and publish!
 
+# Missing Zcode from the xcode menu?
+
+Make sure zcode is enabled in the extensions manager
+
+<img width="664" alt="image" src="https://user-images.githubusercontent.com/20025111/194265176-71220501-6a3a-4740-ac79-21efe8115901.png">
+
+
+<img width="659" alt="image" src="https://user-images.githubusercontent.com/20025111/194264986-45a9158b-9176-47ec-91eb-57d73e0db5ad.png">
+
+
+<img width="655" alt="image" src="https://user-images.githubusercontent.com/20025111/194265038-7db2cd76-4795-4c63-90d3-c1b0e29b9cd6.png">
+
