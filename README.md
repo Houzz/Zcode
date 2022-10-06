@@ -421,7 +421,8 @@ class DemoViewController: UIViewController {
 
 # Missing Zcode from the xcode menu?
 
-Make sure zcode is enabled in the extensions manager
+1. Make sure your Xcode is named exactly `Xcode.app` and not something like `Xcode14.app`
+2. Make sure zcode is enabled in the extensions manager
 
 <img width="664" alt="image" src="https://user-images.githubusercontent.com/20025111/194265176-71220501-6a3a-4740-ac79-21efe8115901.png">
 
