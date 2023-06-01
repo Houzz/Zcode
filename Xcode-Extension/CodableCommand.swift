@@ -55,7 +55,7 @@ fileprivate extension VarInfo {
         let items = key[0].split(separator: "/")
         for (idx,single) in items.enumerated() {
             if idx < items.count - 1 {
-                collect += ".nestedContainer(keyedby: CodingKeys.self, forKey: .\(single))"
+                collect += ".nestedContainer(keyedBy: CodingKeys.self, forKey: .\(single))"
             } else {
                 switch type {
                 case "URL", "UIImage", "UIColor":
