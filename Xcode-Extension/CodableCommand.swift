@@ -50,6 +50,27 @@ fileprivate extension VarInfo {
         return output.joined(separator: " ")
     }
     
+//    func encodeStatement() -> String {
+//        var collect: String = ""
+//        let items = key[0].split(separator: "/")
+//        var currentContainer: String = "container"
+//        for (idx,single) in items.enumerated() {
+//            if idx == items.count - 1 {
+//                switch type {
+//                case "URL", "UIImage", "UIColor":
+//                    collect += "\(currentContainer).encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(single))"
+//                default:
+//                    collect +=  "\(currentContainer).encode\(optional ? "IfPregesent": "")(\(name), forKey: .\(single))"
+//                }
+//            } else {
+//                var collect = "var \(single.lowercased())Container = \(currentContainer)"
+//                collect += ".nestedContainer(keyedBy: CodingKeys.self, forKey: .\(single))\n"
+//                currentContainer = single.lowercased()
+//            }
+//        }
+//        return collect
+//    }
+    
     func encodeStatement() -> String {
         var collect = "try container"
         let items = key[0].split(separator: "/")
