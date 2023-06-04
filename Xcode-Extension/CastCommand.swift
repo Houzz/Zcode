@@ -371,7 +371,7 @@ class ParseInfo {
                 let dName = (idx == 0) ? "dict" : "dict\(idx)"
                 if idx == keys.count - 1 {
                     if variable.isMsec && variable.optional {
-                        output.append("\(editor.indentationString(level: 2))if let \(variable.name) = \(variable.name) {")
+                        output.append("\(editor.indentationString(level: 2))if let \(variable.name) {")
                         output.append("\(editor.indentationString(level: 3))\(dName)[\"\(key)\"] = Int(\(variable.name).timeIntervalSince1970 * 1000)")
                         output.append("\(editor.indentationString(level: 2))}")
                     } else {

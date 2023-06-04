@@ -50,19 +50,27 @@ fileprivate extension VarInfo {
         return output.joined(separator: " ")
     }
     
-    func encodeStatement() -> String {
-        var collect = "try container"
+    func encodeStatements() -> [String] {
+        var collect: [String] = []
         let items = key[0].split(separator: "/")
+        var currentContainer: String = "container"
+        
         for (idx,single) in items.enumerated() {
-            if idx < items.count - 1 {
-                collect += ".nestedContainer(keyedby: CodingKeys.self, forKey: .\(single))"
-            } else {
+            if idx == items.count - 1 {
                 switch type {
                 case "URL", "UIImage", "UIColor":
-                    collect += ".encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(single))"
+                    collect.append("try \(currentContainer).encode\(type)\(optional ? "IfPresent": "")(\(name), forKey: .\(single))")
                 default:
-                    collect +=  ".encode\(optional ? "IfPresent": "")(\(name), forKey: .\(single))"
+                    collect.append("try \(currentContainer).encode\(optional ? "IfPresent": "")(\(name), forKey: .\(single))")
                 }
+            } else {
+                let lowercasedFirstLetterSingle = single.prefix(1).lowercased() + single.dropFirst()
+                let uppercasedFirstLetterCurrent = currentContainer.prefix(1).uppercased() + currentContainer.dropFirst()
+                let nextContainer = "\(lowercasedFirstLetterSingle)\(uppercasedFirstLetterCurrent)"
+                var tmp = "var \(nextContainer) = \(currentContainer)"
+                tmp.append(".nestedContainer(keyedBy: CodingKeys.self, forKey: .\(single))")
+                collect.append(tmp)
+                currentContainer = nextContainer
             }
         }
         return collect
@@ -84,7 +92,8 @@ extension ParseInfo {
             variable.key.forEach { $0.split(separator: "/").forEach { word in allKeys.insert(String(word)) } }
         }
         for key in allKeys.sorted() {
-            output.append("\(editor.indentationString(level: 2))case \(key)")
+            let keyCorrect = key == "extension" ? "`extension`" : key
+            output.append("\(editor.indentationString(level: 2))case \(keyCorrect)")
         }
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
@@ -108,8 +117,12 @@ extension ParseInfo {
                 if variable.skip || (variable.isLet && variable.defaultValue != nil)  {
                     continue
                 }
-                output.append("\(editor.indentationString(level: 2))\(variable.encodeStatement())")
+                let variableStatements = variable.encodeStatements()
+                variableStatements.forEach({
+                    output.append("\(editor.indentationString(level: 2))\($0)")
+                })
             }
+            output = output.removingDuplicates()
         }
         if !override.isEmpty {
             output.append("\(editor.indentationString(level: 2))try super.encode(to: encoder)")
