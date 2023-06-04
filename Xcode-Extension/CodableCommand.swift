@@ -92,7 +92,8 @@ extension ParseInfo {
             variable.key.forEach { $0.split(separator: "/").forEach { word in allKeys.insert(String(word)) } }
         }
         for key in allKeys.sorted() {
-            output.append("\(editor.indentationString(level: 2))case \(key)")
+            let keyCorrect = key == "extension" ? "`extension`" : key
+            output.append("\(editor.indentationString(level: 2))case \(keyCorrect)")
         }
         output.append("\(editor.indentationString(level: 2))\(startReadCustomPattern)")
         if let customLines = customLines {
