@@ -42,7 +42,7 @@
 					<key>XCSourceEditorCommandIdentifier</key>
 					<string>cast</string>
 					<key>XCSourceEditorCommandName</key>
-					<string>Generate: Cast3</string>
+					<string>Generate: Cast</string>
 				</dict>
 				<dict>
 					<key>XCSourceEditorCommandClassName</key>
