@@ -21,10 +21,10 @@ Zcode is an Xcode plugin designed to prevent human errors when implementing mult
 ## Installation
 
 1. Download latest *Zcode* package from the [Releases](https://github.com/Houzz/Zcode/releases).
-1. Copy *Zcode* to your *Applications* folder.
-1. Launch *Zcode* once. You can close it immediately afterwards.
-1. Go to <kbd>System Preferences</kbd> > <kbd>Extensions</kbd> > <kbd>Xcode Source Editor</kbd> > select <kbd>Zcode</kbd>
-
+2. Copy *Zcode* to your *Applications* folder.
+3. Launch *Zcode* once. You can close it immediately afterwards.
+4. Go to <kbd>System Preferences</kbd> > <kbd>Extensions</kbd> > <kbd>Xcode Source Editor</kbd> > select <kbd>Zcode</kbd>
+Note: If you trying to upgrade/downgrade ZCode and your XCode doesn't pick it from the Applications folder, it means there are other instances of Zcode somewhere on your mac. Run "pluginkit -m -A -v | grep com.houzz.Zcode" and remove them.
 ## Features
 
 ### Generate: Assert IBOutlets
